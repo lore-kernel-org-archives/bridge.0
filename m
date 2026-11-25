@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795565931;
-	b=05zoPls6bLwJsSETjnHPFRZeu6M/Ixcw2Ick7s53c+oGbpWltDZ0K6nRVj3yo2qUhh02
-	 OENC90sF4X3k/tNaFYjzha98lkabMSq/vhs3h/offtfiVZmCEvZsWD6lit4qv3Jqatd+7
-	 eEmvyBJIcFVquepLvCxsimr6nZ3ul9ic+PLt6OnGv/f/Ff9PuYYn4DyXQCjF+3T7tAkIV
-	 PNxF8VuRJaYXEeQVWa3hc5ebn7xTWDfil57FeZS3w5xCJcZyhT8LWalS0icLO5LGE5kJ4
-	 ie2zj/Yb0wfKMQUFk0wqvDq7xhE6qeg3aOvTkPrO1185N3Kdonm30S/CQOt+4lnh8IA==
+	t=1795570692;
+	b=K4l+XnmXokKzaaplqr3wXRS4chtOIr4PX/1FDogNeLyT7CjTj4n1JK278KV6WZe7Gehb
+	 sxnL87Ndjv17fKMsgZFVe5mpxEU+C+izPpYdGPXL1BXyr0DLCDTgmRzOOSrr6GSeetbdL
+	 7CGM3yZmkgH14k8seiSSkBueeJ+MrQ8KlNCgAte7BjsVw3OsGNeH1M+OoSDKoz/jQ50T+
+	 zgOi9h+2GWKV1GOdSehQ6rHetbNBYaZrOV1FMgnwc4zYo4fnt1PFsClKWZq0GoXadcodN
+	 Md4Rgesrg2gUvkuHYm/cCrNA2l3EtjHkA2/35YlCYqa2KU5iOA68z0PH/VanwXye9Qg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795565931;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795570692;
 	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
 	 In-Reply-To:References:X-sashiko-severity:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=e3N24i4nZ8F2OWKXy0Bm7z+tiwdFnxgOz1isOAlyjuU=;
-	b=KrP59oaehDO2Rvc3wC878yoFeeyPkutfIrsUzdkMpur0CrgMxYeSP5jx8mVPEXLBS7xh
-	 tlFPUxvCuZWhYuL2C4vIdvk2kiBtpFmbKX+Jg82fm84faTmwlAUi1ujWI1/Vi8TMV9YXD
-	 MVD/It2YfcZh3iUDElUlKEb0mZt11aGeKm0U5PukX8WEMRfWUD3vvTxspr2mnTwYE4bi0
-	 x1PaDxtOWf3gqCylvnFgkh0s2xUD9ibnLV6ZP7IDP/JKOa0Bn8Vw/Xb38tQ0bvszpZYMY
-	 qtnhZN8ggiIpkBlF3BTxnoE4y3ot24sjTVFF34KbXtr/rBYb4xDCX8kZfVsSILjPw6A==
+	bh=Nr1mvIMHP/Apoq8Z0zeyI+Z1HpRcP0Mhyt7l5VEY68k=;
+	b=Cp8MH+XzNgE/d9JkeAh4S5PNhBw5GImvui1r6qmUtwXzPjzKuiV1UT0WsobdCPcGxbjq
+	 DkgYvPwyFzw1woGFYGM/grUZmBd1P62ZBKlDfRP8mIQLYYiV2YVQZYIrcsZYwQj6k6v2Q
+	 b3EurN/kvdGn2eQsO+IQO5zMPXzLO2Lmka96QIdEz0UM9gHYCyHiUeP0hOc/xVF6HhBlQ
+	 pFDgTdbfk3sbargKHLtXj1xR8+pmjxzLJCE4Saed+CzxPaL8R1WCsSwjt0matTxa4W3gU
+	 qtLZLmG2qMBNkkXZmvqLIWq/rdSsgntXn5Ib+mLeGcljC3GOq7+gvEGH4dZe+DurBSQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PecvGAob;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KqKIVXjD;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2790E606A31E;
-	Wed, 25 Nov 2026 00:18:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1F87606A323;
+	Wed, 25 Nov 2026 01:38:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PecvGAob
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EC3E1F000C4;
-	Wed, 25 Nov 2026 00:18:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KqKIVXjD
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF1351F000C6;
+	Wed, 25 Nov 2026 01:38:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795565930;
-	bh=e3N24i4nZ8F2OWKXy0Bm7z+tiwdFnxgOz1isOAlyjuU=;
+	s=k20260515; t=1795570691;
+	bh=Nr1mvIMHP/Apoq8Z0zeyI+Z1HpRcP0Mhyt7l5VEY68k=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=PecvGAoboHIqjiCMCYdaddsz7Afw/VluQbP5J8emv39Jra0ecR7GSO6Ha6bpOQbTo
-	 3xel9nzvvyhbwgGZ/EEGbUmLd7t+U1K5aix6BRj65WpDfQqKmWzduLNjFTB+fbW9Mf
-	 lgBY1/vQBNS/4NKKZSQiXzx5y15+lSk1Trkefh8BPA+0Hyn9q/TMTqNyxSoz0sNjSZ
-	 gvMS/oo4UjuVXPNBh0fOaKvHvNHnWp+vfsaoyCcdKYhHkWX5eTkKx74lEEqgF4Li5Q
-	 ypMX3WJSPZHwVg5UsFWxijk8n1oiBOrjI8Tzudb6sFKy3lyoiXeeFTgL2vEFbN0ivb
-	 TJq44Y4Ozpb3Q==
-Subject: Re: [PATCH net] net: bridge: withdraw the switchdev entry of an fdb
- entry made dynamic
+	b=KqKIVXjDRzKUm2uEwHjGxaWGtAstsh9p2nV3Tu9QJJkWcSAvO09Qb50f/42G7C3K5
+	 afUXDc/E6HaMXSW01/U7LJTLipMOR5JcNgtkdDRoBXCoT5Igq6tjTfIskMaaBJ71lc
+	 GzgBAGN0Ei8rXxE8J+G5eb5hCECJjwcDcOKKRC7WvdejcNTqcPvvTqWJBEhPmp+5NF
+	 zKYKt4z7CnhjSA7V5MbEbEQ48pAeLBYtPCA65as+IhIadZrQ5KBaNuOW+6PqsRxZd0
+	 640aeWN8jFrkQJ+/Ssa85Z+l74UcNtse//iUu+T4KKSBJix81RS64hKgyg4qoM8CCi
+	 ZsnCsKAPsb2mQ==
+Subject: Re: [PATCH net] net: bridge: switchdev: clear the hwdom of a port
+ that stops the offload
 From: netdev-bot+sashiko@kernel.org
-To: julius@bairaktaris.de
-Cc: razor@blackwall.org, idosch@nvidia.com, netdev@vger.kernel.org,
- bridge@lists.linux.dev, davem@davemloft.net, edumazet@kernel.org,
- kuba@kernel.org, pabeni@redhat.com, willemb@google.com, horms@kernel.org,
- olteanv@gmail.com, vladimir.oltean@nxp.com, jbrandeb@kernel.org
-Date: Wed, 25 Nov 2026 00:18:49 +0000
-Message-ID: <179556592915.3135.5085820048352606016@kernel.org>
-In-Reply-To: <20261121191638.1724620-1-julius@bairaktaris.de>
-References: <20261121191638.1724620-1-julius@bairaktaris.de>
-X-sashiko-severity: High
+To: koralilgun@gmail.com
+Cc: razor@blackwall.org, idosch@nvidia.com, davem@davemloft.net,
+ edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, willemb@google.com,
+ horms@kernel.org, vladimir.oltean@nxp.com, ioana.ciornei@nxp.com,
+ andrew@lunn.ch, bridge@lists.linux.dev, netdev@vger.kernel.org
+Date: Wed, 25 Nov 2026 01:38:10 +0000
+Message-ID: <179557069026.3135.3993063298740413532@kernel.org>
+In-Reply-To: <20261124011639.990261-1-koralilgun@gmail.com>
+References: <20261124011639.990261-1-koralilgun@gmail.com>
+X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 X-Mailing-List: bridge@lists.linux.dev
@@ -65,10 +65,10 @@ List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 3 potential
+Thank you for your contribution! Sashiko AI review found 4 potential
 issue(s) to consider.
 
-Critical: 0 · High: 1 · Medium: 2 · Low: 0
+Critical: 0 · High: 0 · Medium: 3 · Low: 1
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -76,217 +76,278 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [High] The patch balances only the event-driven notifications.
-- [Medium] fdb_switchdev_hide() (net/bridge/br_fdb.c:1003-1007) sends
-  SWITCHDEV_FDB_DEL_TO_DEVICE, and the driver removes the entry from its…
-- [Medium] The new withdrawal is not atomic with respect to the packet
-  path.
+- [Medium] In net/bridge/br_switchdev.c, nbp_switchdev_add() sets
+  `p->ppid = ppid; p->offload_count = 1;` (lines 304-305) before it…
+- [Medium] The new `WRITE_ONCE(p->hwdom, 0)` in nbp_switchdev_del()
+  (net/bridge/br_switchdev.c:329-332) runs from dsa_port_pre_lag_leave()…
+- [Medium] net: bridge: switchdev: unreset offload_count on hwdom_set()
+  error
+- [Low] The patch adds a lockless writer of p->hwdom:
+  `WRITE_ONCE(p->hwdom, 0)` in nbp_switchdev_del()…
 
 --
 
-net: bridge: withdraw the switchdev entry of an fdb entry made dynamic
+net: bridge: switchdev: clear the hwdom of a port that stops the offload
 
-Some entries become user-added dynamic entries, which
-br_switchdev_fdb_notify() no longer reports. This patch reports an FDB
-deletion to switchdev just before that happens. The two paths are
-fdb_add_entry() ("bridge fdb replace ... master dynamic") and the NTF_USE
-branch of __fdb_update() ("... master use").
+When the last offload of a bridge port stops while the port stays in the
+bridge, this patch clears p->hwdom in nbp_switchdev_del() so the hwdom is
+no longer leaked. It also makes nbp_switchdev_hwdom_set() skip ports that
+have no hwdom. It replaces nbp_switchdev_can_offload_tx_fwd() with
+nbp_switchdev_tx_fwd_hwdom(), which reads the hwdom once with READ_ONCE().
 
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index b601245ad9239..377ca83410294 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -996,6 +996,16 @@ static bool __fdb_mark_active(struct net_bridge_fdb_entry *fdb)
->  		  test_and_clear_bit(BR_FDB_NOTIFY_INACTIVE, &fdb->flags));
->  }
->  
-> +/* Called before @fdb becomes an entry that the user added as dynamic, which
-> + * br_switchdev_fdb_notify() does not report: report the deletion of the entry
-> + * switchdev was told about, if it was
-> + */
-> +static void fdb_switchdev_hide(struct net_bridge *br,
-> +			       const struct net_bridge_fdb_entry *fdb)
-> +{
-> +	br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
-> +}
-
-[Severity: Medium]
-Does this leave BR_FDB_OFFLOADED set on an entry that is no longer in
-hardware?
-
-fdb_switchdev_hide() sends SWITCHDEV_FDB_DEL_TO_DEVICE and the driver
-removes the entry, but nothing clears the offloaded bit. After the hide
-the entry is ADDED_BY_USER && !STATIC && !EXT_LEARN, so
-br_switchdev_fdb_notify() never reports it again. No driver will then send
-SWITCHDEV_FDB_OFFLOADED to correct the bit.
-
-The SWITCHDEV_FDB_OFFLOADED senders for bridge FDB entries only report
-offloaded=true, and only after an ADD. For example in DSA:
-
-net/dsa/user.c:dsa_fdb_offload_notify() {
-	...
-	info.offloaded = true;
-	call_switchdev_notifiers(SWITCHDEV_FDB_OFFLOADED,
-				 switchdev_work->orig_dev, &info.info, NULL);
-}
-
-mlxsw sends offloaded=false only on its VXLAN path. On the bridge side
-the bit is only cleared in br_fdb_clear_offload() and
-br_fdb_offloaded_set().
-
-So fdb_fill_info() keeps reporting it:
-
-	if (test_bit(BR_FDB_OFFLOADED, &fdb->flags))
-		ndm->ndm_flags |= NTF_OFFLOADED;
-
-After "bridge fdb replace ... master dynamic" or "... master use",
-"bridge fdb show" would then print "offload" for an entry that only
-exists in software.
-
-The commit message says:
-
-    The offloaded flag of the entry stays as the drivers report it.
-
-Drivers don't report un-offloading on DEL_TO_DEVICE, so does the flag just
-go stale here? Should the hide path also clear BR_FDB_OFFLOADED?
+> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+> index 10f3aea6a1f82..7b368fa82f762 100644
+> --- a/net/bridge/br_switchdev.c
+> +++ b/net/bridge/br_switchdev.c
 
 [ ... ]
 
-> @@ -1048,7 +1060,12 @@ static void __fdb_update(struct net_bridge *br,
+> @@ -53,8 +69,10 @@ void nbp_switchdev_frame_mark_tx_fwd_offload(const struct net_bridge_port *p,
+>  void nbp_switchdev_frame_mark_tx_fwd_to_hwdom(const struct net_bridge_port *p,
+>  					      struct sk_buff *skb)
+>  {
+> -	if (nbp_switchdev_can_offload_tx_fwd(p, skb))
+> -		set_bit(p->hwdom, &BR_INPUT_SKB_CB(skb)->fwd_hwdoms);
+> +	int hwdom = nbp_switchdev_tx_fwd_hwdom(p, skb);
+> +
+> +	if (hwdom)
+> +		set_bit(hwdom, &BR_INPUT_SKB_CB(skb)->fwd_hwdoms);
+>  }
+>  
+>  void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
+
+[Severity: Low]
+
+This isn't a functional bug, but nbp_switchdev_del() now does a lockless
+WRITE_ONCE(p->hwdom, 0) on a port that RCU readers can still reach. Should
+the other readers of p->hwdom get an annotation too?
+
+nbp_switchdev_frame_mark() and nbp_switchdev_allowed_egress() each read
+the field twice with plain loads:
+
+	if (p->hwdom)
+		BR_INPUT_SKB_CB(skb)->src_hwdom = p->hwdom;
+
+	return !test_bit(p->hwdom, &cb->fwd_hwdoms) &&
+		(!skb->offload_fwd_mark || cb->src_hwdom != p->hwdom);
+
+The notes below the changelog say that any mix of the old and new values
+gives the result of one of the two states. That seems to hold for the
+current expressions.
+
+KCSAN will still report these loads as data races against the new writer.
+That can happen when nbp_switchdev_del() runs under RTNL during a LAG
+leave or a conduit change, while br_handle_frame() or should_deliver()
+runs in softirq on another CPU. The plain loads are also inconsistent with
+the READ_ONCE() in nbp_switchdev_tx_fwd_hwdom().
+
+Would it be better to read p->hwdom once into a local with READ_ONCE() in
+these helpers? If the race is intended, data_race() would also work.
+
+[ ... ]
+
+> @@ -221,10 +239,14 @@ static int nbp_switchdev_hwdom_set(struct net_bridge_port *joining)
+>  	struct net_bridge_port *p;
+>  	int hwdom;
+>  
+> -	/* joining is yet to be added to the port list. */
+> +	/*
+> +	 * joining can already be in the port list, and so can another port
+> +	 * that stopped the offload but stays a member. Both have no hwdom.
+> +	 */
+>  	list_for_each_entry(p, &br->port_list, list) {
+> -		if (netdev_phys_item_id_same(&joining->ppid, &p->ppid)) {
+> -			joining->hwdom = p->hwdom;
+> +		if (p->hwdom &&
+> +		    netdev_phys_item_id_same(&joining->ppid, &p->ppid)) {
+> +			WRITE_ONCE(joining->hwdom, p->hwdom);
+>  			return 0;
 >  		}
 >  	}
->  
-> +	/* Only from netlink (NTF_USE), with the user's flag in @flags */
->  	if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags))) {
-> +		/* After a roam the deletion was reported above */
-> +		if (!roamed && !test_bit(BR_FDB_STATIC, &fdb->flags) &&
-> +		    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags))
-> +			fdb_switchdev_hide(br, fdb);
->  		set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
 
 [Severity: Medium]
-Can a concurrent roam from the packet path send an ADD between
-fdb_switchdev_hide() and set_bit(BR_FDB_ADDED_BY_USER)?
+Can this skip make nbp_switchdev_hwdom_set() fail for a port that stays
+in the bridge? Would that leave the port with a stale offload_count?
 
-The NTF_USE path runs __fdb_update() under only local_bh_disable() and
-rcu_read_lock(). The packet path in br_fdb_update() updates an existing
-entry without br->hash_lock:
+Before this patch, a port already in br->port_list always matched
+itself in this loop, because nbp_switchdev_add() has just copied the
+ppid into joining->ppid. The -EBUSY return could only be reached from
+br_add_if(), where a failure destroys the new port anyway.
 
-	fdb = fdb_find_rcu(&br->fdb_hash_tbl, addr, vid);
-	if (likely(fdb)) {
-		__fdb_update(br, fdb, source, dst, flags);
+With the new p->hwdom check, a port that is already a member and has no
+hwdom falls through to find_next_zero_bit(). It gets -EBUSY once all
+BR_HWDOM_MAX - 1 hwdoms are busy. At that point nbp_switchdev_add() has
+already set the count and the ppid, and it does not undo them:
 
-A possible interleaving:
+	p->ppid = ppid;
+	p->offload_count = 1;
 
-CPU0 (NTF_USE)                    CPU1 (RX on non-sticky port B)
-__fdb_update()
-  fdb_switchdev_hide()  /* DEL */
-                                  __fdb_update()
-                                    br_switchdev_fdb_notify(DEL)
-                                    br_fdb_dst_write(fdb, B)
-                                    fdb_notify(RTM_NEWNEIGH)
-                                      br_switchdev_fdb_notify()
-                                        /* ADDED_BY_USER still clear */
-                                        SWITCHDEV_FDB_ADD_TO_DEVICE
-  set_bit(BR_FDB_ADDED_BY_USER)
+	err = nbp_switchdev_hwdom_set(p);
+	if (err)
+		return err;
 
-The entry is now user-dynamic. Its later deletion is filtered in
-br_switchdev_fdb_notify(), so the driver keeps the entry on port B.
+br_switchdev_port_offload() then returns the error without calling
+nbp_switchdev_del(). Several paths offload a port that is already in
+the bridge and can hit this:
 
-fdb_add_entry() has the same window. It holds br->hash_lock, but that
-doesn't exclude the packet path. There the hide runs before
-fdb_update_dst() and set_bit(BR_FDB_ADDED_BY_USER).
+- a LAG whose first switch port joins it, via dsa_port_lag_join() or
+  lan966x_lag_port_join()
+- a VXLAN bridge port in mlxsw_sp_bridge_vxlan_join()
+- the rejoin in dsa_port_change_conduit(), where the port now has no
+  hwdom because nbp_switchdev_del() cleared it
 
-There is a variant with the extern_learn flag. CPU0 sees
-BR_FDB_ADDED_BY_EXT_LEARN set and skips the hide. Then CPU1's roam clears
-that flag and sends an ADD before CPU0's set_bit().
+The port is then left with offload_count == 1, the switch's ppid and
+hwdom == 0.
 
-The window is small. It needs a station roaming onto another port while
-the admin command runs. When it hits, the stale entry that this patch is
-meant to remove is left in the driver.
+A later offload from the same switch, including a retry of the same
+command, takes the if (p->offload_count) branch in nbp_switchdev_add().
+That branch increments the count and returns 0. The port is then
+offloaded but never gets a hwdom, and BR_TX_FWD_OFFLOAD is never set.
+This is the hwdom 0 state that the commit message says the skip fixes.
+A frame from such a LAG with offload_fwd_mark would again be refused
+toward every port without a hwdom.
 
-> @@ -1262,6 +1279,10 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_dst dst,
->  		if (flags & NLM_F_EXCL)
->  			return -EEXIST;
->  
-> +		if (!(state & (NUD_PERMANENT | NUD_NOARP)) &&
-> +		    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags))
-> +			fdb_switchdev_hide(br, fdb);
-> +
+An offload from a different switch is refused with "Same bridge port
+cannot be offloaded by two physical switches", because offload_count
+is non-zero.
 
-[Severity: High]
-This balances the event-driven notifications, but what about the replay
-path? br_switchdev_fdb_replay_one() passes every entry in br->fdb_list to
-the driver. It doesn't apply the filter that br_switchdev_fdb_notify()
-uses:
+The count also stays one above the real number of offloads. So
+nbp_switchdev_del() never reaches its cleanup until the port leaves
+the bridge.
 
-net/bridge/br_switchdev.c:br_switchdev_fdb_replay_one() {
-	...
-	br_switchdev_fdb_populate(br, &item, fdb, ctx);
+Should nbp_switchdev_add() reset offload_count, and probably ppid, when
+nbp_switchdev_hwdom_set() fails?
 
-	err = nb->notifier_call(nb, action, &item);
-	...
-}
+[Severity: Medium]
 
-That causes two problems.
+If the hwdom allocation fails, can this skip leave a LAG bridge port with a
+stale offload_count?
 
-First, can an entry hidden here be installed again and then leaked? When
-a DSA port joins the bridge:
+Before this patch, a LAG that is already a bridge port always matched
+itself here, because nbp_switchdev_add() has just set joining->ppid. So
+nbp_switchdev_hwdom_set() could not return -EBUSY for it.
 
-dsa_port_bridge_join()
-  switchdev_bridge_port_offload()
-    nbp_switchdev_sync_objs()
-      br_switchdev_fdb_replay(..., true, ...)
-        dsa_user_switchdev_event()
-          switchdev_handle_fdb_event_to_device()
-            dsa_user_fdb_event()
-              dsa_port_bridge_host_fdb_add()
+With the new p->hwdom check, the LAG falls through to
+find_next_zero_bit(). That returns -EBUSY once all BR_HWDOM_MAX - 1
+hwdoms are busy.
 
-The replayed item has added_by_user set, so it isn't treated as
-dynamically learned. DSA programs it, for example as a refcounted host
-address on the CPU port for an entry on a foreign veth port.
+nbp_switchdev_add() sets the count and ppid before this call, and does not
+undo them on failure:
 
-A later "bridge fdb del" goes through
-fdb_delete()->fdb_notify(RTM_DELNEIGH)->br_switchdev_fdb_notify(), which
-filters it out. The entry is then gone from fdb_list, so the leave-time
-replay never sees it either. The driver keeps the hardware entry and the
-dsa_mac_addr allocation after the bridge has dropped the entry.
-
-This join-time replay leak is older than this patch; it goes back to
-927cdea5d209. It is still the outcome the commit message says is fixed.
-
-Second, does this add a double DEL? Before this patch, a learned entry
-that was made user-dynamic got one ADD (from learning) and one DEL (from
-the leave replay). With this patch it gets the ADD, a DEL from
-fdb_switchdev_hide(), and another DEL when a port leaves:
-
-nbp_switchdev_unsync_objs()
-  br_switchdev_fdb_replay(br_dev, ctx, false, atomic_nb)
+net/bridge/br_switchdev.c:nbp_switchdev_add() {
     ...
-      dsa_port_do_fdb_del()
+	p->ppid = ppid;
+	p->offload_count = 1;
 
-On the DSA CPU port the lookup fails:
-
-net/dsa/switch.c:dsa_port_do_fdb_del() {
-	...
-	a = dsa_mac_addr_find(&dp->fdbs, addr, vid, db);
-	if (!a) {
-		trace_dsa_fdb_del_not_found(dp, addr, vid, &db);
-		err = -ENOENT;
-		goto out;
-	}
-	...
+	err = nbp_switchdev_hwdom_set(p);
+	if (err)
+		return err;
+    ...
 }
 
-dsa_user_switchdev_event_work() then logs "failed to delete ... from fdb".
+br_switchdev_port_offload() returns that error without calling
+nbp_switchdev_del(). dsa_port_bridge_join() then jumps to
+out_rollback_unbridge, which comes after the unoffload rollback.
 
-Another port may have added the hidden entry again through join replay.
-In that case the extra DEL drops that port's reference and deletes the
-hardware entry.
+The LAG then stays in the bridge with offload_count == 1, the switch's
+ppid and hwdom == 0. A later join of a port from the same switch,
+including a retry of the same command, takes this branch in
+nbp_switchdev_add():
 
-Would it work better to apply the same check in both
-br_switchdev_fdb_notify() and the replay path, instead of sending an extra
-DEL from these two event paths?
+	if (p->offload_count) {
+		...
+		p->offload_count++;
+
+		return 0;
+	}
+
+After that, no hwdom is ever assigned. The commit message says the skip
+fixes a LAG with hwdom 0, where nbp_switchdev_allowed_egress() refuses
+frames from the LAG with offload_fwd_mark toward every port without a
+hwdom. Doesn't this path bring that state back?
+
+offload_count also stays one above the real number of offloads, so
+nbp_switchdev_del() never reaches its cleanup. Until the LAG leaves the
+bridge, ports of any other switch are refused with "Same bridge port
+cannot be offloaded by two physical switches".
+
+Would it help to reset offload_count and ppid in nbp_switchdev_add() when
+nbp_switchdev_hwdom_set() fails?
+
+[ ... ]
+
+> @@ -304,8 +326,10 @@ static void nbp_switchdev_del(struct net_bridge_port *p)
+>  	if (p->offload_count)
+>  		return;
+>  
+> -	if (p->hwdom)
+> +	if (p->hwdom) {
+>  		nbp_switchdev_hwdom_put(p);
+> +		WRITE_ONCE(p->hwdom, 0);
+> +	}
+
+[Severity: Medium]
+
+The commit message describes the transmit-side effect of the LAG leave
+window. Does clearing the hwdom here also affect the receive side during
+that window?
+
+This runs from:
+
+dsa_port_pre_lag_leave()
+  dsa_port_pre_bridge_leave()
+    switchdev_bridge_port_unoffload()
+      ...
+        nbp_switchdev_del()
+
+The switch leaves the hardware bridge only later, in dsa_port_lag_leave()
+-> dsa_port_bridge_leave(). The hardware trunk and the dsa_lag mapping are
+removed after that. In between, the hardware still forwards between the
+trunk and the other ports of the same hwdom.
+
+With tag_dsa/edsa (mv88e6xxx), dsa_rcv_ll() injects trunk frames directly
+onto the LAG device and always marks them:
+
+net/dsa/tag_dsa.c:dsa_rcv_ll() {
+    ...
+		lag = dsa_lag_by_id(cpu_dp->dst, source_port + 1);
+		skb->dev = lag ? lag->dev : NULL;
+    ...
+	if (trunk)
+		skb->offload_fwd_mark = true;
+    ...
+}
+
+These frames reach br_handle_frame() on the LAG's bridge port. Because
+p->hwdom is now 0, nbp_switchdev_frame_mark() leaves src_hwdom at 0. In
+nbp_switchdev_allowed_egress():
+
+	return !test_bit(p->hwdom, &cb->fwd_hwdoms) &&
+		(!skb->offload_fwd_mark || cb->src_hwdom != p->hwdom);
+
+the second condition is false for every software port with hwdom 0, so
+these frames are dropped toward the non-switchdev ports. The other ports
+of the switch pass the check and get a software copy of frames that the
+hardware already flooded to them.
+
+The commit message says the patch fixes a bridge that "refuses each port
+without a hwdom for a frame from the LAG with offload_fwd_mark". Doesn't
+the same thing now happen for the length of this window?
+
+dsa_port_change_conduit() opens a similar window for a port that is not
+in a LAG:
+
+	if (bridge_dev) {
+		dsa_port_pre_bridge_leave(dp, bridge_dev);
+		dsa_port_bridge_leave(dp, bridge_dev);
+	}
+
+dsa_default_offload_fwd_mark() keeps setting offload_fwd_mark from
+dp->bridge until dsa_port_bridge_leave() clears it. Frames received on
+that port in between also get src_hwdom 0. Before this patch the port
+kept its hwdom here, which matched the hardware.
+
+Should the commit message also describe these cases?
 
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261121191638.1724620-1-julius%40bairaktaris.de
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261124011639.990261-1-koralilgun%40gmail.com
