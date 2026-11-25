@@ -1,109 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.44
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795587919;
-	b=dpP5fDkCFGyqLYjIdmuMaUUIYgBDZm4utypVBTwr5OgT5hz43shopQpOExj8yWZfHm5E
-	 EBEMvgFlNLUfgUQIVwBLAv9GaHWpP1SFWLdkn6iIJ+qu+TJd/46L4JIP68yM7po30DBSD
-	 8qUFwZApvN3/5nPGp1j99R1xSXeRYZZu7sG9ysBXpUjn8w4ngQ5AVCkHk7WgAVEybT/7q
-	 isNDzFKKIIOyRNRsLbTRPVMW/iLDgJK+jrmDSMnJWyzLSY/8zR2mF9OaP9WmXnPYDHs8W
-	 bOwx0k3QmoRq7q7oFXCe0BYoZLmDollsWZyrRgPD9W9Smu7fR5J2JLcLREStLbPvZ2Q==
+	t=1795595693;
+	b=ARAkozYWz1KZGYfsJySSf+JCj30V1RBMlbzR4e4UqWjoJHIYQdo4Hqp4aUIx/VGDQzjK
+	 yd0tWFc6URW4w7kTRX2deh8tILq59jbtgVRHWxz2tmTymLlZdehNq7IeUKOhPukyo3LRY
+	 qGTaawvkJxAbgShXsQ8mADN1XjmEJ5OJUHjQYWO4wCHADCH1micN3t2Hjg90xov1KYKtl
+	 DqDITjoexNtIz4dg66YMXnbD2IMQh0jbUoIBKOnoYQhzprOpIlYxfPgdadYCaHxUN3yL8
+	 AY9RItG3QOo0WLjH0DahNTdpqKMya7i3PvvScC4J0uMPKoIrF53oceS33L8G3bViNXw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795587919;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795595693;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type:
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:Content-Language:To:
+	 Cc:References:From:In-Reply-To:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=wQqO0ZGiPSduhL/nnYRl9rtTaPzOuw285ahJlrfXT+I=;
-	b=KrNzca6KwMKvVf6Y3cNSpBxG1Z+OVe/hkftUlORWS1D1JcRPj4fAfzUP/r4qOoAjk+ZG
-	 uieMDUuL2IJoKdGV4+6BuaW5xgmDKpk7HurUc7aNI58uPkHQ5yi/8SMT6zRhk9Z5aYydn
-	 se1p0iDfzA8f3UiIzebvvf7o7h2RKEKmTLR2pRwDKNunuiYvGIwmG0jOouaX//c25CipT
-	 XdlhC96ng/tVzTiP3DuxTnEum5dqsLqkhEl9+DwtjMUhit6Ca5gJPTnxUroFC9QqNZ8Xg
-	 WgsQuyRKh+lYAtG6V+ikS08YWVuywTDnLIULW7zjKyXJDvsOUehFJ6rgQ4RDpyrwWOw==
+	bh=V24Aq6kbDrsjlo6n/xUdmssdTYaesbR21Q1hwpsxJYs=;
+	b=lnDPTePUsLJw2z+qmcy7agU2r1vX+cjCd+s2WZNNIqkyY5ylCnceePnY5/7VSvgkd8ep
+	 ezltS1EAOvsWXSO1yXGv2dJMwFjWUa2UON7w4zDhe5s9Fn2+oArrWFYxoNyH+MZB1ULNF
+	 Y/406N0840/s3gVY9ykuCagva/uon2fZEibb44FU5y80Z+kAIBKNG6rfvYTiySRknYc6A
+	 62UbBpjCLKY0CiHsa/159SAzWtVCoEWQNoxbJGDpd2bBmYM6GfJa6vRF4v0ZW7ukZOVv9
+	 tDcJ8YReA8qPAJyC34KgZ8OYnm8u1jPhtdP6ZxYzmnkVLSdJ2sfMgeRpEEFntge7c1Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=trailofbits.com;
-	spf=pass smtp.mailfrom=trailofbits.com;
-	dkim=pass header.d=trailofbits.com header.i=@trailofbits.com header.a=rsa-sha256 header.s=google header.b=VJYa2XUP;
-	arc=none smtp.remote-ip=74.125.82.43
-Received: from mail-dl1-f43.google.com (mail-dl1-f43.google.com [74.125.82.43])
+	dmarc=none header.from=blackwall.org;
+	spf=none smtp.mailfrom=blackwall.org;
+	dkim=pass header.d=blackwall.org header.i=@blackwall.org header.a=rsa-sha256 header.s=google header.b=HVrqD8Ca;
+	arc=none smtp.remote-ip=209.85.221.44
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 090FE606A32A
-	for <bridge@lists.linux.dev>; Wed, 25 Nov 2026 06:25:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 090FE606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trailofbits.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=trailofbits.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFD41606A321
+	for <bridge@lists.linux.dev>; Wed, 25 Nov 2026 08:34:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BFD41606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=trailofbits.com header.i=@trailofbits.com header.a=rsa-sha256 header.s=google header.b=VJYa2XUP
-Received: by mail-dl1-f43.google.com with SMTP id a92af1059eb24-1b3acec6677so7976740c88.1
-        for <bridge@lists.linux.dev>; Tue, 24 Nov 2026 22:25:18 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.a=rsa-sha256 header.s=google header.b=HVrqD8Ca
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-4a3e706b5dfso3414228f8f.2
+        for <bridge@lists.linux.dev>; Wed, 25 Nov 2026 00:34:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=trailofbits.com; s=google; t=1795587918; x=1796192718; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=wQqO0ZGiPSduhL/nnYRl9rtTaPzOuw285ahJlrfXT+I=;
-        b=VJYa2XUPlju1kVR6vhELYAUPWcgniW5cPCCnRpw+m5eppzd5x41v+HI3Hm6u6o4daX
-         YxIeYMsi9NQbK4UGhGNQRTIvgbt9CDgN2jkUhRpK53tcPAIyi9NHmJ+Awbhg0u+7hGka
-         JeK6PLkUNJXDjc4DKmSWhA72vqvvcr9qRS3eSam6Enc9xUbe2PDfNdjI+D5zkBPVb1xl
-         3y55VPqtREHVkeMCEjFcLd7hvDu6asEpHW0npN8DsnSZjjAU+W0tp8xFgOTakwxzjDCZ
-         w62vfnkmA8EODcqoL2NxKobmfKEbh7P55HjAKeTv33QMmOnOTlbansjFNYnVpz3zBK2C
-         O+gw==
+        d=blackwall.org; s=google; t=1795595691; x=1796200491; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=V24Aq6kbDrsjlo6n/xUdmssdTYaesbR21Q1hwpsxJYs=;
+        b=HVrqD8CaKL/q+jVVFDtr2JEMESyMzmOIp6DI8r0+Pf5lgpISbC5lQGhMfk67aRTUL2
+         DAV9Hn9zz/vuAhJuqrmuijCqEpNmb47+Mk0NgFBA0vlkbfWwBBR/7RxvNbV+6uNChera
+         8Ux+6mPC2Ew+Tdh59P/BgPvtok1+3YN6rz/FgvDAuTvVJFCn8wurBau0sZmOhjzUqyHf
+         4fnIEqpCzHHvwbpwpdqTxbfMAobHs275EiTdYRZVGBv5ibCfq/+bR3lq+ZF6d8Zt4Uio
+         QRlXfxXTA9z1UkRAcpJ8qUpNmjcgGMUwdGVJD9ma1OJpknpNbLjzacqfbjWSZrA9kWcR
+         J8iQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795587918; x=1796192718;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=wQqO0ZGiPSduhL/nnYRl9rtTaPzOuw285ahJlrfXT+I=;
-        b=fplEYVqT3dLR5mLm/pC47GrdRcRmMZ71Y3vvn7hlvsPcWAE9MBF7Q+vWxg9ecc//Dl
-         MTh5/dEH0yH6QMBXGcbfqBo96kMRxA5x/h8l/oSYViXyT24qulyQ3RCwGmyU1D0T4hlY
-         zN6+UANtaEb09H3PCKsTVJZXHPkAvTUSWpAEHLOcW9cc4x9qvxOrSozmRRMNbmGa/s9e
-         rc0IEmpKSgZ22jvRkNhP8NzrhHMYZK91pWmhLF+ziMlGdA7a64rNPzsMX7u7Nt5bzs7+
-         1X2wjKvcyH2+2w99lE2oiv6Ok2lYkKGOifv9m22R6rXwxwwOZIpckXobOPHCGBmVseMP
-         S/gQ==
-X-Forwarded-Encrypted: i=1; AL+hErEmzh2TKyodq0z3136WVhSSRng/t/tUKVCn5/kMOJIO2+vqPE8vZM938BHDjNkm1HhF0PxDaHI=@lists.linux.dev
-X-Gm-Message-State: APuU4Z9qKFx7enlNrbc1P1iet21y2CnWopC4cC+/zuzLM3CKq0mEwtB1
-	4EmuuqA+4q/iouzWCFN2F7RL2W4sLOsOqArT5CRc9gA64IIg5VbprrreqdND6NiYXao=
-X-Gm-Gg: AZFdTZckweO++CzaeC6JDjNQnDXQi58Y8X7EPGx4yW1XBjBDL5zuCtRvr3V8M2FXrrG
-	h1ROP2zqlLg2Sbfp0uChmnY1RNWx0lRRd7CT8bQGykAkMtfOTvdB2oy747gXyYRU/GGFcU/3Q+B
-	QmPmY0mnEJ6F9Ct2wXhpYpQHm/wUHdrZmuib7zHe9WacI1lBpk2MtbtjGAIm4XP8yno1SrnBCYI
-	KX4m4q3BUUZQOQ4bPqXkRLe9xScrup/Lbm6fSNoweF/srEIdyqJ2Mp85FloNSZuCkvi1+hHawbg
-	Y419DXodbKsvgCDkZa5HKCgwJi/O2uIei3tdU86SaTFnTMtf61iTKwoLrL4MdDTtUs+ITRQ8DSl
-	KOkSkbB0xqOTO7i09qFbvFSzAe4gCj8r+twMMOICRGZNXAfxA6Hx37n2hUJwGvqSaZxENroZCW2
-	ttjuZWz0r3/eLcgSnOXrmVHefMo75GjKl/iiF22HZR4X2gNLkxWKqN96GV/BOrxn8XB4/N/41tx
-	7pWFEtDliFdLSSVXVn7ox01fNqrjBw5bQ0tKejjriB93BS1abD48171M8wRHpJ1JFf4Idu7vL07
-	H9BC0i6PILsqMwKDXzHl49ObdAsqgKkG1Hbhp2ZCp0s0Mb1i8NWx2lj5MeGPrjq9TYuBoV88Frt
-	Ggg8PuiVln+MkgcpOTpDRD7XoLA==
-X-Received: by 2002:a05:701a:cc88:10b0:151:6e80:ba7e with SMTP id a92af1059eb24-1b5567dcec1mr15984271c88.4.1795587917888;
-        Tue, 24 Nov 2026 22:25:17 -0800 (PST)
-Received: from localhost.localdomain ([2603:8003:6d40:6669:75a7:83bd:63db:baa9])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5568592adsm38712721c88.15.2026.11.24.22.25.16
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Tue, 24 Nov 2026 22:25:17 -0800 (PST)
-From: Artem Dinaburg <artem@trailofbits.com>
-To: stable@vger.kernel.org
-Cc: andrea.mayer@uniroma2.it,
-	autonomouscodesecurity@microsoft.com,
-	blbllhy@gmail.com,
-	bridge@lists.linux.dev,
-	davem@davemloft.net,
-	dsahern@kernel.org,
-	edumazet@kernel.org,
-	g.goller@proxmox.com,
-	herbert@gondor.apana.org.au,
-	horms@kernel.org,
-	idosch@nvidia.com,
-	ipsec@lists.linux.dev,
-	justin.iurman@gmail.com,
-	kuba@kernel.org,
-	netdev@vger.kernel.org,
-	pabeni@redhat.com,
-	razor@blackwall.org,
-	steffen.klassert@secunet.com,
-	xmei5@asu.edu,
-	yuya.kusakabe@gmail.com
-Subject: [6.18.y] Please pick four networking fixes
-Date: Wed, 25 Nov 2026 01:25:13 -0500
-Message-ID: <20261125062513.96901-1-artem@trailofbits.com>
+        d=1e100.net; s=20260707; t=1795595691; x=1796200491;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=V24Aq6kbDrsjlo6n/xUdmssdTYaesbR21Q1hwpsxJYs=;
+        b=zTM9xIbJguNy0ccxhTtClzAygMpVV5oztDa7YZmOStTcrE0ZKNMXxlBzlXbAbXTLw8
+         6Zu5FpMe8IWOGoP6Oz5kwO5ll2ih4ZuYpIKptJ1Wjd0CmsoRPFSArkpTCsePVsKzfrw9
+         VsS2V8z5KoxgiDEy30Bmg4otRCWewmN8c9svXhCghdTu6lgLsuSRKFj3mFCbQpfJiNYE
+         9TUQTrGchxnuRCGLtEregdX7IB8M1Vr3r4TqXQSY44jhKzYfo8uhG+AuInDUaqvXVUaN
+         f74AK/Nz1CYH5TuwM56EQZy6jN1NAGkT0s91LnY222trVva0tYV9KlIXNgz7EOGsX44N
+         8xpQ==
+X-Forwarded-Encrypted: i=1; AL+hErGQ79u9ptkMrOxtNZq9T8B/V7QUi4bc/JawNUEPqqziWOV7BDlF4cyeQKqqmL3O+1TTJP1PE+0=@lists.linux.dev
+X-Gm-Message-State: APuU4Z/ZCW2HMuczh3SFYwKVk8XRgpIfSnvNi3YG0m2BQp5Q8r+GOJ38
+	ME8up6qC7s90fHWRPJRIZiwRmC085upoTUqcF+W4/8eiRSEl3nsrD6cL8ENGd0lezgw=
+X-Gm-Gg: AZFdTZdefgw/wk6YHKBY6zBSrUPYB7qHEghI107KoayzNe3mX0farhi6BhJjZ4lBGJ+
+	GXHqTZzm4CU3RgdHIaI0JwQTrgnL7sABGQMl13+zSfgzWmvFiqVMwXBCk917/aSbrX98ZZHQVyL
+	cT+JzeuniyRrdAymoD8O7dS6Fd2KMpTv1cEU/EXt9SzUk+0QCCBz9R+W2iqsrIR5H4cWth3M2rb
+	fjWpLlIZAZH5Ic4CH3qOrOXnEOMS8ftORiE8KevFPJd81Np0S3GjaaPiKAPgIEWLw0q5aVnF2xa
+	oDZsvPpZBmXJbb2KqW9SFckS5g2VKqlJNIx6yF6iE56Tlj+XvTPO4oMz7E0aSaYbA+YWpdZkcB9
+	VGt57Co3AIwn4vSvdu6OnWIbj2d54m7bNXtAxit/GHJFd6BREgahGqTvOI4QrTxzUndwfX9s4Jl
+	Xq3qwLf7n0VqZVb2zCyUoTMdoHSbzk1buV0+tt4qHgiWr0Swcq+1IrxJ6MMwh/m4+ZBEhygc7L4
+	SgiVLWo0mq3vOCQ6epqotz0MIaT1bQl+zOmivqiKXOtTfbmiNp78t3umplf9SDmKVMMf/0WObwY
+	jRPI3O3TZPPKqVOQFMAK+c5Akxk+DTx1qsSHRDvAvR0ArvCAxrc798/dqUzwHtxH4YQCEgOrE37
+	NXod4
+X-Received: by 2002:a05:6000:2906:b0:4a3:777a:a964 with SMTP id ffacd0b85a97d-4aba58de987mr32705827f8f.0.1795595690957;
+        Wed, 25 Nov 2026 00:34:50 -0800 (PST)
+Received: from [192.168.0.161] (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4b70c05b9desm8842930f8f.54.2026.11.25.00.34.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 Nov 2026 00:34:50 -0800 (PST)
+Message-ID: <ec105c0a-1a6b-48ab-89ca-eae8b3f7983f@blackwall.org>
+Date: Wed, 25 Nov 2026 10:34:49 +0200
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -113,80 +92,150 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 00/13] net: Report requester's port ID in FDB
+ notifications
+Content-Language: en-US, bg
+To: Petr Machata <petrm@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ netdev@vger.kernel.org
+Cc: Andrew Lunn <andrew+netdev@lunn.ch>, bridge@lists.linux.dev,
+ Ido Schimmel <idosch@nvidia.com>, Andy Roulin <aroulin@nvidia.com>,
+ mlxsw@nvidia.com
+References: <cover.1795447450.git.petrm@nvidia.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <cover.1795447450.git.petrm@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi,
+On 23/11/2026 19:59, Petr Machata wrote:
+> Every netlink message carries a port ID in the nlmsg_pid header field. The
+> port ID identifies a netlink socket. In a request it is the port ID of the
+> socket that sent it. When a change that results from a request is
+> announced to the multicast listeners, the kernel puts the port ID of the
+> requester in nlmsg_pid of the notification. For changes that the kernel
+> initiates by itself, such as aging, nlmsg_pid is zero.
+> 
+> This is used by applications that both configure the kernel and listen to
+> notifications from it. By comparing nlmsg_pid to the port ID of their own
+> socket, they can tell their own changes apart from those made by someone
+> else, and ignore the former. Commit 7b8f7a402d4c ("neighbour: fix nlmsg_pid
+> in notifications") fixed this for IP neighbours, citing quagga as one such
+> application. Routes and nexthops report the port ID as well.
+> 
+> For FDB entries, the notifications (RTM_NEWNEIGH and RTM_DELNEIGH with the
+> AF_BRIDGE family) always carry zero, whoever caused them, so applications
+> that manage FDB cannot do this sort of filtering. Hence this patchset.
+> 
+> The patchset goes through the following steps:
+> 
+> - FDB notifications are generated in two places. The bridge and VXLAN
+>    drivers send their own from ndo_fdb_add, _del and _del_bulk, but these
+>    NDOs are not given the port ID of the requester. For other drivers that
+>    implement ndo_fdb_add / _del, the rtnetlink core sends a default
+>    notification on their behalf. It has the port ID at hand, but does not
+>    pass it on.
+> 
+>    The obvious way to get the port ID to the bridge and VXLAN is to add it
+>    to the NDO prototypes. But ndo_fdb_add and _del already carry many
+>    arguments, and one more would further complicate the already unwieldy
+>    prototypes, as well as require adjustments in every driver. Instead, in
+>    patch #1, convert the prototypes of ndo_fdb_add, _del and _get to take a
+>    new struct ndo_fdb_parms. ndo_fdb_get already has the port ID, but it
+>    shares most of its arguments with the other two, so it makes sense to
+>    treat them alike.
+> 
+>    A dedicated structure has the advantage that both callers and callees
+>    can refer to individual arguments by name instead of by position. Any
+>    future additions boil down to a new field in the structure.
+> 
+>    In patch #2, have ndo_dflt_fdb_add and ndo_dflt_fdb_del take the
+>    structure as well. That simplifies the drivers that use the helper, which
+>    can now just pass the structure pointer right through.
+> 
+>    In patch #3, move the port ID of ndo_fdb_get from an argument into the
+>    structure and adjust drivers.
+> 
+> - Now that the structure argument is available to the bridge driver, make
+>    use of the fact in patch #4. Instead of unpacking the structure fields
+>    and passing them on one by one, propagate the structure itself further
+>    into the driver.
+> 
+>    Then in patch #5, propagate the port ID all the way to where bridge
+>    notifications are generated.
+> 
+>    It is tempting to somehow use the parms structure more extensively in
+>    VXLAN as well, but VXLAN has its own large set of protocol-specific
+>    parameters. Passing the structure as such is not going to help that much.
+>    It looks like VXLAN would ideally need its own VXLAN-specific parms
+>    structure. But since the complexity damage here is limited to VXLAN,
+>    leave the status quo and in patch #6, just add the new parameter. The
+>    patchset is large enough as it is.
+> 
+> - Patch #7 is where the port ID in struct ndo_fdb_parms is initialized from
+>    the request. With that, notifications that the bridge and VXLAN send as a
+>    result of adding, replacing and deleting an entry carry the port ID.
+>    Notifications that are not a result of a request still carry zero.
+> 
+>    Patch #8 then adds the port ID argument to ndo_fdb_del_bulk, which does
+>    not use the newly-introduced parms structure, and has the bridge and
+>    VXLAN drivers use the now-available port ID for notifications.
+> 
+>    Finally, patch #9 converts the rtnetlink fallback helper, so that the
+>    notifications it sends on behalf of drivers that do not emit their own
+>    carry the port ID as well.
+> 
+> - Patches #10 to #13 add a selftest. Patches #10 to #12 extend the rt-neigh
+>    spec with attributes needed to build FDB delete requests, add the
+>    NLM_F_BULK flag to the YNL Python library and add an RtnlNeighFamily
+>    wrapper to the selftest library. Patch #13 then adds the test itself. The
+>    test is written in Python with YNL, because the usual shell tools cannot
+>    show nlmsg_pid.
+> 
+> Petr Machata (13):
+>    net: Introduce struct ndo_fdb_parms
+>    net: Pass struct ndo_fdb_parms to ndo_dflt_fdb_{add, del}()
+>    net: Pass portid to ndo_fdb_get through the structure
+>    net: bridge: Pass struct ndo_fdb_parms a bit further
+>    net: bridge: Pass portid through FDB notifications
+>    net: vxlan: Pass portid through FDB notifications
+>    net: rtnetlink: Report port ID in bridge and VXLAN FDB notifications
+>    net: rtnetlink: Report port ID in bulk FDB delete notifications
+>    net: rtnetlink: Report port ID in fallback FDB notifications
+>    netlink: specs: rt-neigh: Extend the delneigh request attributes
+>    tools: ynl: Add NLM_F_BULK
+>    selftests: net: lib: py: Add RtnlNeighFamily
+>    selftests: net: Add a test for port ID in FDB notifications
+> 
+>   Documentation/netlink/specs/rt-neigh.yaml     |   4 +
+>   drivers/net/ethernet/intel/i40e/i40e_main.c   |  29 +-
+>   drivers/net/ethernet/intel/ice/ice_main.c     |  43 ++-
+>   drivers/net/ethernet/intel/igb/igb_main.c     |  14 +-
+>   drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |  14 +-
+>   drivers/net/ethernet/mscc/ocelot_net.c        |  19 +-
+>   .../net/ethernet/qlogic/qlcnic/qlcnic_main.c  |  38 ++-
+>   drivers/net/macvlan.c                         |  33 +-
+>   drivers/net/vxlan/vxlan_core.c                | 118 +++----
+>   drivers/net/vxlan/vxlan_private.h             |   5 +-
+>   drivers/net/vxlan/vxlan_vnifilter.c           |   6 +-
+>   include/linux/netdevice.h                     |  43 ++-
+>   include/linux/rtnetlink.h                     |   9 +-
+>   net/bridge/br.c                               |   2 +-
+>   net/bridge/br_fdb.c                           | 177 ++++++-----
+>   net/bridge/br_netlink.c                       |   4 +-
+>   net/bridge/br_private.h                       |  20 +-
+>   net/bridge/br_sysfs_br.c                      |   2 +-
+>   net/core/rtnetlink.c                          |  98 +++---
+>   tools/net/ynl/pyynl/lib/ynl.py                |   2 +
+>   tools/testing/selftests/net/Makefile          |   1 +
+>   tools/testing/selftests/net/config            |   1 +
+>   .../selftests/net/fdb_notify_portid.py        | 297 ++++++++++++++++++
+>   .../testing/selftests/net/lib/py/__init__.py  |   6 +-
+>   tools/testing/selftests/net/lib/py/ynl.py     |  10 +-
+>   25 files changed, 669 insertions(+), 326 deletions(-)
+>   create mode 100755 tools/testing/selftests/net/fdb_notify_portid.py
+> 
 
-Please pick the following four upstream commits for 6.18.y. None carries
-a stable tag, and so far each has been backported only to 7.2.y. They
-touch unrelated files and can be applied in any order.
-
-1. 2842ce397dd09882530b42f7fdb0c855767eb24e ("net: bridge: vlan: fix
-   bugs caused by switchdev deletion errors"), CVE-2026-98285
-
-   When switchdev fails to delete a VLAN, __vlan_del() returns early.
-   This can leave inconsistent state, leak memory when the VLANs are
-   flushed, and cause a NULL pointer dereference on the flush error
-   path. The fix logs the switchdev error and completes the software
-   deletion. In 7.2.8 and in mainline since 7.3. Applies unchanged to
-   6.18.65.
-
-2. 9fa903b24b1f46b4ff5443bcd4aca23e5c57f9c1 ("xfrm: hold net_device
-   reference under RCU in bundle creation"), CVE-2026-98364
-
-   xfrm_bundle_create() and xfrm_create_dummy_bundle() read dst->dev
-   without holding a reference and pass it to xfrm_fill_dst(). A
-   concurrent RTM_DELLINK can free that device first, causing a
-   use-after-free. The fix reads the device with dst_dev_rcu() and stays
-   in the RCU read-side section until xfrm_fill_dst() has taken its
-   references. In 7.2.8 and in mainline since 7.3. Applies to 6.18.65
-   unchanged apart from line offsets.
-
-3. 87cd6b717e4069dca34e0866e57eaeb44d3b173e ("net: ipv6: keep room for
-   the mac header in dst_dev_overhead()"), CVE-2026-98570
-
-   The seg6, rpl and ioam6 lwtunnels reserve headroom with
-   dst_dev_overhead(), which can be smaller than skb->mac_len, for
-   example on a VLAN device with reorder_hdr off.
-   skb_mac_header_rebuild() then computes a negative MAC header offset
-   and writes past the buffer. The fix makes dst_dev_overhead() return
-   the larger of the two values. In 7.2.9 and in mainline since 7.3.
-   Applies unchanged to 6.18.65.
-
-4. 8ae3f4067ba4ae3a15581392f6dac422e3d3def0 ("seg6: ensure packet data
-   is writable before modifying SRH and IPv6 DA"), CVE-2026-98802
-
-   advance_nextseg() and seg6_next_csid_advance_arg() modify the SRH
-   and the IPv6 destination address without making the packet data
-   writable. If the skb is cloned, for example by an AF_PACKET socket on
-   the ingress device, the clone sees the modified packet. The fix calls
-   skb_ensure_writable() first and reloads the header pointers
-   afterwards. In 7.2.10 and in mainline since 7.3. Applies unchanged to
-   6.18.65.
-
-   Ordering note: queue-6.18 contains
-   seg6-fix-transport-header-for-inner-ipv4-with-ip-opt.patch, which
-   adds code above input_action_end_b6(). With that patch applied, a
-   three-way cherry-pick of this commit is clean and correct, but
-   applying the upstream diff as plain text places the
-   kfree_skb_reason() hunk for input_action_end_b6_encap() in
-   input_action_end_b6() instead, which fails to build.
-
-Apart from that seg6 patch, no patch in queue-6.18 touches the files
-these commits change. All four cherry-pick cleanly together onto 6.18.65
-and onto 6.18.65 with the current queue-6.18 patches applied. Older
-stable series are affected by some of these bugs as well; this request
-covers only 6.18.y.
-
-Compiled net/bridge/br_vlan.o, net/xfrm/xfrm_policy.o,
-net/ipv6/seg6_iptunnel.o, net/ipv6/rpl_iptunnel.o,
-net/ipv6/ioam6_iptunnel.o and net/ipv6/seg6_local.o with CONFIG_WERROR=y
-on 6.18.65 from a cumulative x86_64 tree, with and without the current
-queue-6.18 patches. No kernel boot or runtime test was performed.
-
-An LLM was used to check applicability and stable-queue history and to
-draft this request; I reviewed the result.
-
-Thanks,
-Artem Dinaburg
+LGTM, for the set:
+Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
