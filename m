@@ -1,49 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=156.67.10.101
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795704010;
-	b=LjhJBnXIFhf8Jktk+A1Hbe6XU71B0BWAj9a3x9XZOV/hy7/6yHz02AOGrA4o52EsyZKI
-	 BmgFAXpcMupDVjBOXsJjFve8QD7DU4x9Vwg4kngMcIyZkC1FJw7iNUDslaJKxsb25p27u
-	 mvhiKP44076sdTJqb3zIUg/fq8TK4XK2ZEXwf0gDxhfG7v5BJCt4inSlj1OWYy+AJGhPs
-	 7ItOBf+7hjGfr5zQJAVs16srbLeeZ+jhcDgvZez5p6x+ju1pyGSONqvMSMsy7ZztBjgkq
-	 7BNAguGudxXx1piR3fPs/fj4w0NQYmbPb15kJV4fZ3g+VUqLvgexwPzNJNGAh6m6CBw==
+	t=1795704462;
+	b=We7wGOS5LcxFXjq+Ft2z+Y9TwWaTzrteocTH+HBcP4rlM4Mmb3GF0z7C1RK5TxuyBb7E
+	 O3u2P8Ri/m39nM/l9n49eQIWb4OYOynIwD/dA15Uqbx5wW7fkMfQi8fF5+C2P8BO5ggms
+	 cYMNMP2sDr4CnwSXyakLxgHhs2ZwhYXXH+Ck6udMeFi6Hv6cBong4bO8Mr5aAtl8oEQJv
+	 v+aJHCQcjH3hB3CcZJh/PD6x4Xg2PeVM5msreyU2MKCLxizneCdnUv4EvlfB7U3QNKG80
+	 LU+zFiOpPKYz3aOpzLfDN7mxAgElUV25H4Kxh24jznnHN2ulaby7Cm4i7uMwA0hCleQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795704010;
-	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
-	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc;
-	bh=Ma+fJaTyImR0PIDjBx3AtNZNkSSUq6SS/2gdqpsBcnM=;
-	b=k3A1w4vGU3FzhLa4lgSr973Z8PEShfbTbg0qncX+YM4B5KXmRjrx/kAB/DlCeJ7ajaI9
-	 yjWgD1KQEsDfhv1dEGwCmC0Bif/0WmIchNjlpSl8nYLB3FyzqMFiZm7IboEFKZYojOtXm
-	 Sk6obmWo67DW+v/YdJjIyLfktUJYiG3LXG8/ngK36A2R3K60vihosdUlPzA165BUzn5XN
-	 NZzIKKlYD4P0ggKLRkQ3PVcJhYENKPSl3nlARz9zo+c/VxUFBGhwrTCSal4677rEehFCX
-	 3hgNJxEi3rTp96L5Nf3c4s9mki5WzGS2fEmgmawDQzVkTbA+E0IZr/XmjU11zwouFkg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795704462;
+	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To;
+	bh=hRrMixad2qJyrlzNp3Oeqpd4ndyNXjwG6ZWgC5iOE5I=;
+	b=CN6WkTO0KKOSYYyqyj7BytTBnGXe4VJ7ip+dEk+EMc6SrHkCMX2DV3k5uIZq4MY5nOJg
+	 vbs/9KfEGY4CgbDdtkKJGP9OYjMrxPUCaU7yMCLVq6Psftt6TQW6pfbdC8qjiRPusSguB
+	 MhSBx8NYEwo20tBm3o5emcul6EXpIpR3RDe0t/shxW9U4KLWPpDOZiq7V00qgrlzARHhG
+	 tareN3QG+wvl8k86FX9n0rIFjWQUWz9t5wp4crFyMBP2q2WB37sLTHtiRrv8d1ZBQkct0
+	 cWVCZDy3RKF3SZBcjYSwf6I8+d26u1iyfJVQVpgYlnI9yXfPEa19ZzAz0Uv/FspTzKg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZpnweTll;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=lunn.ch;
+	spf=pass smtp.mailfrom=lunn.ch;
+	dkim=pass header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=YjN7FVqf;
+	arc=none smtp.remote-ip=156.67.10.101
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 699BC606A31C;
-	Thu, 26 Nov 2026 14:40:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAE03606A321;
+	Thu, 26 Nov 2026 14:47:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CAE03606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZpnweTll
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43B761F000C0;
-	Thu, 26 Nov 2026 14:40:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795704010;
-	bh=Ma+fJaTyImR0PIDjBx3AtNZNkSSUq6SS/2gdqpsBcnM=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=ZpnweTllp0GAwfTzIa9SVZVerRre/bDy6ghxlr/FdNjLD8q9ui7hVaMwHBg2ou8vW
-	 m3599TZa5BO3ceos8HduNeSRRcKqX7EE97sed0lSkSEMA9DSZUwjDpwrsR6IHnyYtm
-	 FY68Qwq8KXVkvSxTeQnLZDHumN2tqIfojhJRTg757xvS9rhvJQ9I2WxiwgGlbhWiR6
-	 uHyfotrHqNkmf/TdmKXSPTBnPY8c20aU2kJlqX4ozq0joi7GIMBMTWzTcZY180Bctj
-	 xHVlWB/2Z9tIBW6JMWypoQZta6IG18Ivf1XeY/mbP4HKlo5Zz4O7NQnra+hACuxMpB
-	 o1X8O3ed22zvg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3A3D1380AA5E;
-	Thu, 26 Nov 2026 14:40:10 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=YjN7FVqf
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=hRrMixad2qJyrlzNp3Oeqpd4ndyNXjwG6ZWgC5iOE5I=; b=YjN7FVqfAOF8mbC1Q5Qcnk/Up9
+	yoLg+sWJXfKJe4rG5umBfRrBaCidJh5rpnOQTrQxMJRw9bE27Mi/feTh3GlmWaE6ecPvpOH9a5d5p
+	SnHFkXw613IHkNyWeIiJ13Fu298KNomClSkUxBmipih52W5X72RbyCyN++E1Z7e1lvx0=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1xWal0-001abR-AO; Thu, 26 Nov 2026 15:47:30 +0100
+Date: Thu, 26 Nov 2026 15:47:30 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: Woojung Huh <woojung.huh@microchip.com>, UNGLinuxDriver@microchip.com,
+	Vladimir Oltean <olteanv@gmail.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org,
+	bridge@lists.linux.dev, kernel@pengutronix.de
+Subject: Re: [PATCH net-next 1/5] net: dsa: tag_ksz: do not mark trapped
+ link-local frames as forwarded
+Message-ID: <f2bf2333-8cbe-45d7-ae63-1cb0a15f9eb4@lunn.ch>
+References: <20261126-ksz-stp-link-local-v1-0-39aed15f6271@pengutronix.de>
+ <20261126-ksz-stp-link-local-v1-1-39aed15f6271@pengutronix.de>
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -53,50 +71,27 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next 0/3] net: bridge: optimize vlan multicast
- forwarding
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <179570400876.1866113.11572420928835954798.git-patchwork-notify@kernel.org>
-Date: Thu, 26 Nov 2026 14:40:08 +0000
-References: <20261123102833.924427-1-razor@blackwall.org>
-In-Reply-To: <20261123102833.924427-1-razor@blackwall.org>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, idosch@nvidia.com, davem@davemloft.net,
- edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- bridge@lists.linux.dev
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261126-ksz-stp-link-local-v1-1-39aed15f6271@pengutronix.de>
 
-Hello:
+> +	/* The switch driver reports which link-local groups the switch sends
+> +	 * to the CPU only. The switch did not forward frames to these groups,
+> +	 * so do not mark them, and let the bridge apply its own rules
+> +	 * (group_fwd_mask, STP state).
+> +	 */
+> +	if (!ksz_link_local_trapped(skb->dev, eth_hdr(skb)->h_dest))
+> +		dsa_default_offload_fwd_mark(skb);
 
-This series was applied to netdev/net-next.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
+There is a bit of a common pattern in tag drivers:
 
-On Mon, 23 Nov 2026 12:28:30 +0200 you wrote:
-> Hi,
-> This is the last part of the patch-sets that optimize forwarding by caching
-> VLANs. It adds the forwarding optimizations to the bridge multicast code
-> and also optimizes vlan range add (see tables below).
-> 
-> Patch 01 - use the vlan already stored in the in per-VLAN router context
-> Patch 02 - use a small hash (64 entries) to find the port vlan groups
->            without walking all
-> Patch 03 - cache the port-VLAN destination in mdbs to avoid egress VLAN
->            lookups
-> 
-> [...]
+        if (likely(!is_link_local_ether_addr(eth_hdr(skb)->h_dest)))
+                dsa_default_offload_fwd_mark(skb);
 
-Here is the summary with links:
-  - [net-next,1/3] net: bridge: avoid VLAN lookups for multicast router forwarding
-    https://git.kernel.org/netdev/net-next/c/2661ecf12be7
-  - [net-next,2/3] net: bridge: mdb: index port groups by VLAN
-    https://git.kernel.org/netdev/net-next/c/5163021286df
-  - [net-next,3/3] net: bridge: mdb: avoid VLAN lookups in listener forwarding
-    https://git.kernel.org/netdev/net-next/c/d513e83cb90f
+Your variant is more specific, but does it need to be?
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Should we consider adding a variant of dsa_default_offload_fwd_mark()
+which combines this into one? And then change the tag drivers to use
+it?
 
-
+	Andrew
