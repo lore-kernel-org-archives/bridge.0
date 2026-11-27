@@ -1,41 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=94.136.29.106
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795716451;
-	b=laZeQTPa1dk3L4PDahXBWoGiQtMt4n3DoCw4m9s83lE3UD7m0WO5FneeslNxf3z2dJBI
-	 jsBkOVO5QDay2IIsOQxPMla0MIUpe3WtfF67V4L6BAj433QZ7XLjGIJCmf56fLVrycV41
-	 dLHs6dTMybMNEjb1rfb+gjmPPmladY6pI+L5LmJAS1Zvwxbl+K8rpTgA/Z0QvWggYKurw
-	 PjWt92uYw5WJyyyySqZJ8fwHVecIEdf+89i9upFiUt87ja3yuAuHe6NtQmoxJJc7M0VGd
-	 hTw0TmZsaoL8tejl1V5wGu9kLnNePU46BMnUsWqYyiBD6ncZjpy8IST2dceReHDvEhA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795716451;
-	h=DMARC-Filter:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:
-	 X-Mailer:X-Bm-Milter-Handled:X-Bm-Transport-Timestamp;
-	bh=fO8QeXvStg/OvId8DJMUDY0DdTVmhBM+wahBamvw0ow=;
-	b=EZBOv3Nyxsb31w/WELKFI2doc+1SZXW5mzfLsKOuX/fey1qINpnArbWn0bqPfOD9R9kI
-	 9ZsZNfGYnnFDCSgKuRG8EsKcvRV7TApD6fQXFY50/9aZ+fOL1Dq4QpPmlK/ZUjv4KEa3x
-	 M3roWZcO/MpgBP1r8bPo4K2Fo7foUXPGM6nZ3Ptmx+kxEzdPhiQ83wlrupKRQ13HMCzj/
-	 8S1Steu8MIK+6ATTQTKV1Syz/ftyN4ULPiLAaIZUd+t4mtqdfg/1auvQNqKDKPgL5PeRq
-	 LEXYu+Giwgoq4BNv6VwPuVjZoLJRZ2YIOILfL/QD+75iflNbaiJWJgEvXTisILGUKYg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=proxmox.com;
-	spf=pass smtp.mailfrom=proxmox.com;
-	arc=none smtp.remote-ip=94.136.29.106
-Received: from proxmox-new.maurer-it.com (proxmox-new.maurer-it.com [94.136.29.106])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795758816;
+	b=qW7Oavnoav6gRkU90o/UW7qN285gpXWid5HjwNTYOHvmnHcL3HJKENlYRYbXJnqZkyBH
+	 1IHinpa22orIhkJDlqzTCBa+4ZLvVq/4tb38A+bj7SN6boUSuPluaz8p9qBqHcPNwy40F
+	 wco1+4+5NOcrHDVBtnD0Bjw+iDGoSjCdV5dWgw0epiZ1OHTlpgEsWST85PA+OS6BHwleH
+	 B7mPvRFrYodwKQ+tuvMWSVMEMWWBKxaMjnneDzHZo3OiWZpLFeKF+ounjgmBhJmfBq3DZ
+	 w2jGnOO2HBj1N5kY6DXzvvFLerMdAdzYvlrzO0RiOziEaC5T5CH39as6UcknCOPm/Iw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795758816;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=CJVSd+Wq9RvOR9XH+zDJ1/ZiXPZMqlEQ5ITdd3R2yzA=;
+	b=VHTPGQML1xTJdpYyB2IoQAsDO8O3eZP4YtZaEo4zr+utZkQtLhdOi4Ssys/3yiLH8qUy
+	 m+5LkvKdTT6l5eoxc+vXNYvbx7murBFWb+I/rNXGmVCJhvSsSe+cke3OhAHitr/DSkN0L
+	 CD9TZJ+jzdpsGG6k9GBzehkeB+4BGsAI3UwON9eeh952aCxR75pU+NRjOgjzTNfVOS/KD
+	 HP733mAnDRoRoJkWQFC0msfUW+4E0Gsg8TZAnuAKV9Jf8fXDYpnpUkhjiPuMTLenWYE4J
+	 dehGK5kzMyX/BQYaOlNcldrHCHKPomvIyS2jnW1JZQDMF0ruEbPA5PTnJD6rS5VYEfw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=none header.from=pengutronix.de;
+	spf=pass smtp.mailfrom=pengutronix.de;
+	dkim=pass header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b="NwhX0mN/";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
+Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00AD6606A31E
-	for <bridge@lists.linux.dev>; Thu, 26 Nov 2026 18:07:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 00AD6606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=proxmox.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proxmox.com
-Received: from proxmox-new.maurer-it.com (localhost.localdomain [127.0.0.1])
-	by proxmox-new.maurer-it.com (Proxmox) with ESMTP id 660D342A22;
-	Thu, 26 Nov 2026 19:07:22 +0100 (CET)
-From: Gabriel Goller <g.goller@proxmox.com>
-Date: Thu, 26 Nov 2026 19:07:16 +0100
-Subject: [PATCH iproute2-next] bridge: vni: fix typo in error message
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F3AB606A31E
+	for <bridge@lists.linux.dev>; Fri, 27 Nov 2026 05:53:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6F3AB606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=NwhX0mN/
+Received: from ptx.office.stw.pengutronix.de (ptx.office.stw.pengutronix.de [IPv6:2a0a:edc0:0:900:1d::109])
+	(Authenticated sender: relay-from-ptx.office.stw.pengutronix.de)
+	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 809272004B4;
+	Fri, 27 Nov 2026 06:53:32 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
+	s=20260414; t=1795758812;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CJVSd+Wq9RvOR9XH+zDJ1/ZiXPZMqlEQ5ITdd3R2yzA=;
+	b=NwhX0mN//G4M2a0VYDKm6nUkkDMwG4vBR6RV+efZVeauhRpBofw27nPjTHtysIVGBbB68U
+	T1/ruXPRbRVTZUUM6qZnrttoRX/sLFaOGbBaibWRRw0/gHZxLCfLFlbG6zQvNHV2hPn+v4
+	MeozIWKe+3c9KgwLHn5auheoG/U7AM8h+AGrtzOIJbNMV7MqYO6zdKK3sbEcgMvstZjdxY
+	r80NQuTEunZSvVmnMK7ZWiCD8l5TjaN8rhAG7NUIaPzn5dFPpL0w5clYpY1iObkI/yFzTB
+	bDM6em2UEiWWjRLQVnTLV/1PHPqDnNsYE6iIMGygPVXw5cI8pSUm6Oa+Ndkh2A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
+	s=20260414; t=1795758812;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CJVSd+Wq9RvOR9XH+zDJ1/ZiXPZMqlEQ5ITdd3R2yzA=;
+	b=HdgxwwqaDqMVorUtQsozvqx1uq3VSG9Cm4HrocEafLbEy0MIMbbpxwoFUvhGmxwGa7dBwu
+	vqweP2iUC9pSVz4kQeNQQ0LVx1+ByJqb5+o/2aJfCtET773GJ5WmiWgaKyE7bkWFqTnod8
+	8brAm5W1xDCnKE/Sce5dvqu8P8xiwAF8MqccbOWqUCyRsgO4WZEcpDL+GI2248O5EcgaXc
+	FcrM/UfT1BUSsVdObvEdn7P/NU7Bsd+nVUceUoWvVieS0sQY5l9gvNC9HfBOiGgM/33/Qh
+	A/jRJJFtcrOiTAaJVpnZfCoYIxDLaE842Hqd5Zo+Qxyg4ppPnx9tae0R7DA22A==
+ARC-Authentication-Results: i=1;
+	ORIGINATING;
+	auth=pass smtp.auth=relay-from-ptx.office.stw.pengutronix.de smtp.mailfrom=ore@pengutronix.de
+ARC-Seal: i=1; s=20260414; d=pengutronix.de; t=1795758812; a=rsa-sha256;
+	cv=none;
+	b=FY/lZxDa02OO8cvJfh8T2ZeL82qhacfC2w4P0dwk8fFzdghocHtKg5W3dK/FBb+uW0Brdk
+	TrhgMkvKjvxF9jz2qBy8UykWv+F2XDfXLqHFOlGan0oH/nzzm1X5D60E9LtnZkiCEaJf3K
+	yDA4ckQnlRSBXaa+z5+rM/ZEoSQ4emCvg4ygcXG2HrIOCpxneqJmghM3RYfWuSRJpY1y/H
+	kvXGmhHXqKNGSIiGVXTz4JMTyU2NjwAomU3lxrORAihz+104lrrmqj7Zr/Ek/NWMMkKJiG
+	ySi3eTmTKz7i3JuVEHYg1QeHL4ASsphbM7C2X1PuadKwzfVmGsRWiwbbR6G4XQ==
+Received: by ptx.office.stw.pengutronix.de (Postfix, from userid 1058)
+	id 6A29E1BF4EE; Fri, 27 Nov 2026 06:53:32 +0100 (CET)
+Date: Fri, 27 Nov 2026 06:53:32 +0100
+From: Oleksij Rempel <o.rempel@pengutronix.de>
+To: Vladimir Oltean <olteanv@gmail.com>
+Cc: Woojung Huh <woojung.huh@microchip.com>, UNGLinuxDriver@microchip.com,
+	Andrew Lunn <andrew@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org,
+	bridge@lists.linux.dev, kernel@pengutronix.de
+Subject: Re: [PATCH net-next 0/5] net: dsa: microchip: let the bridge decide
+ about link-local frames
+Message-ID: <awka3GOt3XIKURcX@pengutronix.de>
+References: <20261126-ksz-stp-link-local-v1-0-39aed15f6271@pengutronix.de>
+ <awgHiY9mcEAD1C34@skbuf>
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -45,49 +98,30 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261126-bridge_vni_fix-v1-1-2e8d5694fee6@proxmox.com>
-X-B4-Tracking: v=1; b=H4sIAFN1CGsC/yWM0QqDMBAEf0XuuQETIa39lVLEM1u9PkS5RBHEf
- 2/aPs4uMwclqCDRvTpIsUmSORawl4qGqY8jjITC5GrnrXXesEoY0W1RupfshpvrrQkt+xpMRVo
- UZf4FHySLzmuGMxF7puf/Tiu/MeRvlM7zAysq+z2BAAAA
-X-Change-ID: 20261126-bridge_vni_fix-b3783d9b60eb
-To: netdev@vger.kernel.org
-Cc: David Ahern <dsahern@kernel.org>, 
- Stephen Hemminger <stephen@networkplumber.org>, 
- Ido Schimmel <idosch@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, 
- bridge@lists.linux.dev, Gabriel Goller <g.goller@proxmox.com>
-X-Mailer: b4 0.17-dev
-X-Bm-Milter-Handled: 55990f41-d878-4baa-be0a-ee34c49e34d2
-X-Bm-Transport-Timestamp: 1795716441786
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <awgHiY9mcEAD1C34@skbuf>
 
-Fix "ternminated" -> "terminated".
+Hi Vladimir,
 
-Signed-off-by: Gabriel Goller <g.goller@proxmox.com>
----
- bridge/vni.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Thu, Nov 26, 2026 at 12:23:55PM +0200, Vladimir Oltean wrote:
+> I didn't go into any sort of detail in these patches yet, but they
+> reminded me of this thread:
+> https://lore.kernel.org/netdev/20250127125426.3b7cdkb75o5dbcr5@skbuf/
+>
+> IIRC Tim's problem there still wasn't resolved (he tried to use the
+> reserved multicast address tables). Does your series address his issue
+> too?
 
-diff --git a/bridge/vni.c b/bridge/vni.c
-index b28647fd2f41..aeb62224bf6c 100644
---- a/bridge/vni.c
-+++ b/bridge/vni.c
-@@ -375,7 +375,7 @@ static int vni_show(int argc, char **argv)
- 
- 	ret = rtnl_dump_filter(&rth, print_vnifilter_rtm, NULL);
- 	if (ret < 0) {
--		fprintf(stderr, "Dump ternminated\n");
-+		fprintf(stderr, "Dump terminated\n");
- 		exit(1);
- 	}
- 
+If I see it correctly, Tim had two concerns:
+- the reserved multicast table assumed that the CPU is the last port,
+- and 01:80:C2:00:00:0E was not forwarded.
 
----
-base-commit: 8055701cb470fdc9e5e9909369bff3f7e24c872e
-change-id: 20261126-bridge_vni_fix-b3783d9b60eb
+The first one is handled by 96baf482ca1f ("net: dsa: microchip: Fix
+reserved multicast address table programming")
 
-Best regards,
---  
-Gabriel Goller <g.goller@proxmox.com>
+This series addresses the second one. :0E is trapped to the CPU, the
+tagger no longer sets offload_fwd_mark for it
 
-
+Best Regards,
+Oleksij
