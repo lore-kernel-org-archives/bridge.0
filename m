@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795767874;
-	b=Y2Qy2pnf0ViuP52DYZhrmch365cmNtFO4hPVUbWMMAeub6PCEmZTjSyBCurCDRVWiFah
-	 nGh22wOp8ziFEN/guhaCwjuTYAFGJ469DVeJFIKDlQzX7DeQIxd0Z9+P23W8hpbETuwDo
-	 NCrPBVw5qweHuNHYNGFbICRP9xgMmVeg7qlyL8odlwnFmzyYcbktJs+EcW5lugSVBmctT
-	 oQB67YBcwCbIY7nBn9AXrzoG18Zd6N9dw31fupPPpmsQPvHLnasEVFGoWIQjBQ+o4mzhF
-	 ksWyPdHJ3rZwXq4eH34zBRUk6kt3c+vRjVFURrG2BzFN4A6PHgaq6HmKeiwx1gwr3tw==
+	t=1795767876;
+	b=oNiRHNhYsOuaGwPDAP1Gf8OGdJ+nNW42/K4mIHjCGq8vDihV1JsAZqH1IvAziQflWYIv
+	 Tp1b7+1nhAh5V0e3c78adt3DYCJZZBUxyDX9ankjMmqexlN5jrIHk9l2QDWPQDrouekJo
+	 4O7TH1r19WUEzI1wFydVTSMZ4ljQ8Mk5BFLzZldKjLFPQZMSS7J0eaFoEJGgSaMWfapko
+	 +Wcl4wI90vVRGzjADiKFLLX5/Gq090faYlA2nzunzY+v2yHdHfbtI8OiywZRQMcK/w89d
+	 EVRBe9Te3NgJJLDDNZDy9zKueSPF3OiRthPC/pOi18Jpy2mST9lAWZISiNVQW0XHTXQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795767874;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795767876;
 	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
 	 In-Reply-To:References:X-sashiko-severity:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=clCUkJmrvj16kl83LPMA6kvCuKRRhj6JejeF30H3Ws4=;
-	b=Eo9ZlZZWYtRUqsI5mm9k4QbxzrqUqAYM9DvzG89JMwTOvo0qWoMpxz9U26041Pngod+0
-	 +Qi9DVaNf0YHlircKxmGY64H9ekyWkOWuerQWaC30ZhuRunNUwN7ypCZZrsTQ/X7WyOZo
-	 rB0ofkP4x/jK480lpH8bKwfB2UJzT86/ZPDUVqDhQ6mmZq5doV5ZwRQ00KiESteQDXJ/4
-	 0Ki8Tu3XftoigLZhMDbZuljxPoF32BSaXYHnzhR2oJ7VzhO3vLXYXgNp3bODyMS+60aaY
-	 4Yy7AmVWLnUkN1FfBHkkLVVsJOUjXVlWDv5UV5GQZvjgUKpwtCZN5uEfReroZwamEag==
+	bh=MlOHk0M8kwtp5u/zTni7+wcFytDELTmVJD3AV1zqGes=;
+	b=TP2bHfwphh+11pAv1TWh/dcRvs5/ljWduouM2ITpqiT+qhQUMD1r1dXAUliqkcQy2c6q
+	 DK3nRG5Btc3lfQkBvjSAiJ6oP4jSSKKd3YnXj1cOc5l0nuwQC7raX+sevdXzJdQnF6WdS
+	 4blKWXSj8j3u4GBna5Q51xsqu50kP4l+RYT8mTmc4lwHSsPNFZP3zRlSQkHxKbYbClqNC
+	 f2EnZ18/htW5xw/llC2p+mE68xUg9EzkgY5zKuDO06Po/xy0pqv1kwt+nLM9Wo+N4cwYe
+	 TS3lkakFXT2vjZ6e6YOhcTc8kiPNPXCs2b7M7OYIbB7xI0qzJ1J29tnjrYu1AUJN9Sg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FPk8Fzhq;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WbNoY0RT;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 438CF606A323;
-	Fri, 27 Nov 2026 08:24:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39A59606A687;
+	Fri, 27 Nov 2026 08:24:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FPk8Fzhq
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0251A1F00897;
-	Fri, 27 Nov 2026 08:24:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WbNoY0RT
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD3E51F00893;
+	Fri, 27 Nov 2026 08:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795767873;
-	bh=clCUkJmrvj16kl83LPMA6kvCuKRRhj6JejeF30H3Ws4=;
+	s=k20260515; t=1795767875;
+	bh=MlOHk0M8kwtp5u/zTni7+wcFytDELTmVJD3AV1zqGes=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=FPk8Fzhqmz3lsVmKocfY/zbgpLEKVAQOrHmdMFxLCKTS8+7/G9XflNl0RadA4MZg8
-	 ufxqpi3z1DFUSwT3+Vu+yv+iSk0dzo04W4D39RfqBYuIg94jNmUiz/LUsUwP+2vj+3
-	 b+jZUMTAzBhmslZwrLUrsa5mpuxOKNPvVH3ROtw2yC8pfCvz/9mVVxoZOFIZfX4gUU
-	 8xtXE6cPq5+TsbphFZhp+WhfewnPzSF5M3jXxTvMg+MNlTFldJUQvtN3M41N4GMKLM
-	 HI4L70BxHHLw4/nrPOI4ukUcPdwxO6TrlE1V1ONuv2x/tBdskujF1QSJDcAWoVvK7i
-	 500W+x5t/DGIg==
-Subject: Re: [PATCH net-next 2/5] net: dsa: microchip: ksz9477: do not keep
- the learned port in FDB entries
+	b=WbNoY0RTpM3bhTHwvJlotlaOmwBq0Ssd1yvP+wWglFLXIB7JFu/NPTAtFh3bHvQP6
+	 2napRyq10+ZHln6yr6iRxvGV7vo7hWbZH2I4O1KYUIMnp13Djqa3rscuBW10ON1dcQ
+	 ZQYtHBnTV/iCYpqPeR6WZ/GfeCn9BcW+vfn+1dew5F2ZV6+4yMKZBTHQPoV8TC6xOq
+	 057CTkxgyorNOHyF1+4BY8/7WlOX98jFztCitdRpz5/ySKpln61wVtSq7fV24/a1wT
+	 AzHJnc3vmvISwhWOrGvvnU1U74t1rbiIA29ij+TNjtXUxvI0Zi9rwd6eXkGmsS8zkV
+	 ZCeEsv5JZZkNg==
+Subject: Re: [PATCH net-next 3/5] net: dsa: microchip: ksz9477: do not learn
+ addresses on the CPU port
 From: netdev-bot+sashiko@kernel.org
 To: o.rempel@pengutronix.de
 Cc: woojung.huh@microchip.com, UNGLinuxDriver@microchip.com, andrew@lunn.ch,
@@ -49,11 +49,11 @@ Cc: woojung.huh@microchip.com, UNGLinuxDriver@microchip.com, andrew@lunn.ch,
  pabeni@redhat.com, horms@kernel.org, f.fainelli@gmail.com,
  razor@blackwall.org, idosch@nvidia.com, netdev@vger.kernel.org,
  bridge@lists.linux.dev, kernel@pengutronix.de
-Date: Fri, 27 Nov 2026 08:24:32 +0000
-Message-ID: <179576787253.3135.17885676621555467617@kernel.org>
-In-Reply-To: <20261126-ksz-stp-link-local-v1-2-39aed15f6271@pengutronix.de>
-References: <20261126-ksz-stp-link-local-v1-2-39aed15f6271@pengutronix.de>
-X-sashiko-severity: High
+Date: Fri, 27 Nov 2026 08:24:34 +0000
+Message-ID: <179576787449.3135.11974599854572162575@kernel.org>
+In-Reply-To: <20261126-ksz-stp-link-local-v1-3-39aed15f6271@pengutronix.de>
+References: <20261126-ksz-stp-link-local-v1-3-39aed15f6271@pengutronix.de>
+X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 X-Mailing-List: bridge@lists.linux.dev
@@ -69,7 +69,7 @@ MIME-Version: 1.0
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue(s) to consider.
 
-Critical: 0 · High: 1 · Medium: 0 · Low: 0
+Critical: 0 · High: 0 · Medium: 1 · Low: 0
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -77,103 +77,117 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [High] The fix covers only part of the bug its commit message
-  describes.
+- [Medium] This patch causes an HSR offload regression on KSZ9477.
 
 --
 
-net: dsa: microchip: ksz9477: do not keep the learned port in FDB entries
+net: dsa: microchip: ksz9477: do not learn addresses on the CPU port
 
-This patch changes ksz9477_fdb_add() so that a static FDB entry no longer
-inherits the port map of a learned ALU entry for the same address. If the
-ALU entry found for the address is not already static, its port map is
-cleared before the requested port is set.
+This patch turns off address learning on the CPU port of the KSZ9477
+family and LAN937x. It sets ds->assisted_learning_on_cpu_port instead, so
+DSA installs the addresses the bridge learns outside the switch as static
+entries on the CPU port. This prepares for software forwarding of trapped
+link-local frames.
 
 > diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
-> index 972703fe7454f..98211d9835734 100644
+> index 98211d9835734..8271bc742ddc5 100644
 > --- a/drivers/net/dsa/microchip/ksz9477.c
 > +++ b/drivers/net/dsa/microchip/ksz9477.c
-> @@ -800,6 +800,13 @@ int ksz9477_fdb_add(struct dsa_switch *ds, int port,
->  	/* read ALU entry */
->  	ksz9477_read_table(dev, alu_table);
+
+[ ... ]
+
+> @@ -1792,13 +1791,15 @@ static int ksz9477_setup(struct dsa_switch *ds)
+>  	if (ret < 0)
+>  		return ret;
 >  
-> +	/* The ALU table holds learned and static entries. If the entry is
-> +	 * not static (learned, or none found), clear its port map, so that
-> +	 * the static entry lists only this port.
-> +	 */
-> +	if (!(alu_table[0] & ALU_V_STATIC_VALID))
-> +		alu_table[1] &= ~ALU_V_PORT_MAP;
-> +
->  	/* update ALU entry */
->  	alu_table[0] = ALU_V_STATIC_VALID;
->  	alu_table[1] |= BIT(port);
+> -	/* Start with learning disabled on standalone user ports, and enabled
+> -	 * on the CPU port. In lack of other finer mechanisms, learning on the
+> -	 * CPU port will avoid flooding bridge local addresses on the network
+> -	 * in some cases.
+> +	/* Ask DSA to add the addresses that the bridge learns on ports
+> +	 * outside the switch as static entries on the CPU port. The CPU
+> +	 * port itself does not learn: when the bridge forwards a frame in
+> +	 * software between two ports of the switch, the switch would learn
+> +	 * the sender on the CPU port. p->learning is never set for the CPU
+> +	 * port, so ksz_port_stp_state_set() disables learning when DSA sets
+> +	 * the port to forwarding.
+>  	 */
+> -	p = &dev->ports[dev->cpu_port];
+> -	p->learning = true;
+> +	ds->assisted_learning_on_cpu_port = true;
 
-[Severity: High]
-Can the stale static entry from the commit message still be created when
-the existing ALU entry is already static?
+[Severity: Medium]
+Does this cause a regression for HSR offload on KSZ9477? Unicast frames
+addressed to the local HSR node now seem to be forwarded to the other ring
+port as well.
 
-When ALU_V_STATIC_VALID is set, the port map is kept, and the
-alu_table[1] |= BIT(port) adds the new port to the old one.
+Before this change, the CPU port learned the HSR MAC from frames the host
+sent. That learned entry sent unicast with DA == HSR MAC to the CPU only.
+Now dsa_port_enable_rt() moves the CPU port to BR_STATE_FORWARDING, and
+p->learning is false, so ksz_port_stp_state_set() disables learning there:
 
-For a user replace, the bridge does not tell the driver about the old
-port. fdb_add_entry()->fdb_update_dst() in net/bridge/br_fdb.c only
-rewrites the destination:
-
-net/bridge/br_fdb.c:fdb_update_dst() {
+ksz_port_stp_state_set() {
     ...
-	br_fdb_dst_write(fdb, dst);
-	return true;
+	case BR_STATE_FORWARDING:
+		data |= (PORT_TX_ENABLE | PORT_RX_ENABLE);
+		if (!p->learning)
+			data |= PORT_LEARN_DISABLE;
+    ...
 }
 
-Only RTM_NEWNEIGH is then sent for the new port. That differs from learned
-migration in br_fdb_update(), which first sends a delete for the old
-port:
+The replacement doesn't seem to cover HSR, because HSR ports are not in a
+bridge:
 
-	if (source != old_port) {
-		br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
-		br_fdb_dst_write(fdb, dst);
+dsa_user_fdb_event() {
+    ...
+	if (!dp->bridge)
+		return 0;
+    ...
+}
 
-So in the replace case, port_fdb_add is the only notice the driver gets
-that the address moved. Take this sequence:
+dsa_switch_supports_uc_filtering() needs ds->fdb_isolation, which the
+microchip drivers don't set, so standalone host address filtering doesn't
+add the entry either.
 
-  bridge fdb add H dev lan1 master static      -> ALU static {lan1}
-  bridge fdb replace H dev lan2 master static  -> ALU static {lan1, lan2}
-  bridge fdb del H dev lan2 master static
+ksz9477_hsr_join() doesn't install a static ALU entry for the HSR MAC.
+ksz_switch_macaddr_get() only programs the self-address filter register.
+ksz9477_hsr_join() also makes the two ring ports and the CPU members of
+each other's forwarding set:
 
-After the replace, the bridge has H only on lan2. ksz9477_fdb_del() then
-clears only the deleted port:
+ksz9477_hsr_join() {
+    ...
+		hsr_ports |= BIT(dsa_upstream_port(ds, port));
+		dsa_hsr_foreach_port(hsr_dp, ds, hsr)
+			ksz9477_cfg_port_member(dev, hsr_dp->index, hsr_ports);
+    ...
+		data |= HSR_DUPLICATE_DISCARD;
+		data &= ~HSR_NODE_UNICAST;
+    ...
+}
 
-	/* clear forwarding port */
-	alu_table[1] &= ~BIT(port);
+ksz9477 never programs unknown unicast control (REG_SW_LUE_UNK_UCAST_CTRL__4
+is unused). Unicast to this node would then miss in the ALU and flood to
+the other ring port and the CPU. It would keep going around the ring until
+the sender's self-address filter drops it.
 
-That leaves a static {lan1} entry. The bridge no longer tracks it, and it
-never ages out. This is the same result the commit message describes:
+The hardware meaning of HSR_NODE_UNICAST is not documented in the tree.
+If clearing that bit made the switch deliver node-addressed unicast only
+to the host, this flooding would not happen. The note below the --- line
+reaches the same conclusion, that the frames are flooded.
 
-  "The entry stays static and still points to lan1. Static entries never
-  age out. So the switch keeps sending frames for H to lan1, even after H
-  has moved."
+That note is dropped when the patch is applied. The commit message doesn't
+mention this behavior change, and nothing in the series changes the HSR
+join/leave path.
 
-Would it be better to always set the unicast port map to exactly BIT(port),
-by clearing ALU_V_PORT_MAP unconditionally instead of only for non-static
-entries? mv88e6xxx_port_db_load_purge() already does this for unicast
-static entries:
+Could ksz9477_hsr_join() add a static ALU entry for hsr->dev_addr on the
+CPU port, with ksz9477_hsr_leave() removing it? Another option is to keep
+CPU port learning enabled while dev->hsr_ports is non-zero.
 
-	if (state == MV88E6XXX_G1_ATU_DATA_STATE_UC_STATIC)
-		entry.portvec = BIT(port);
+>  
+>  	if (dev->irq > 0) {
+>  		ret = ksz_girq_setup(dev);
 
-Multicast uses the separate static table in ksz9477_mdb_add(), so it does
-not seem to go through this path.
-
-The note below the --- line already mentions this gap:
-
-  "If bridge fdb replace moves an existing static entry to another port,
-  the entry still keeps the old port. This patch does not change that."
-
-That text does not end up in git history, though. The commit carries a
-Fixes: tag, so the commit log does not show that the bug is only partly
-fixed. The following ksz9477 change sets ds->assisted_learning_on_cpu_port,
-which creates more static entries on the CPU port that this OR-merge can
-act on.
+[ ... ]
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261126-ksz-stp-link-local-v1-0-39aed15f6271%40pengutronix.de
