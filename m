@@ -1,94 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795758816;
-	b=qW7Oavnoav6gRkU90o/UW7qN285gpXWid5HjwNTYOHvmnHcL3HJKENlYRYbXJnqZkyBH
-	 1IHinpa22orIhkJDlqzTCBa+4ZLvVq/4tb38A+bj7SN6boUSuPluaz8p9qBqHcPNwy40F
-	 wco1+4+5NOcrHDVBtnD0Bjw+iDGoSjCdV5dWgw0epiZ1OHTlpgEsWST85PA+OS6BHwleH
-	 B7mPvRFrYodwKQ+tuvMWSVMEMWWBKxaMjnneDzHZo3OiWZpLFeKF+ounjgmBhJmfBq3DZ
-	 w2jGnOO2HBj1N5kY6DXzvvFLerMdAdzYvlrzO0RiOziEaC5T5CH39as6UcknCOPm/Iw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795758816;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=CJVSd+Wq9RvOR9XH+zDJ1/ZiXPZMqlEQ5ITdd3R2yzA=;
-	b=VHTPGQML1xTJdpYyB2IoQAsDO8O3eZP4YtZaEo4zr+utZkQtLhdOi4Ssys/3yiLH8qUy
-	 m+5LkvKdTT6l5eoxc+vXNYvbx7murBFWb+I/rNXGmVCJhvSsSe+cke3OhAHitr/DSkN0L
-	 CD9TZJ+jzdpsGG6k9GBzehkeB+4BGsAI3UwON9eeh952aCxR75pU+NRjOgjzTNfVOS/KD
-	 HP733mAnDRoRoJkWQFC0msfUW+4E0Gsg8TZAnuAKV9Jf8fXDYpnpUkhjiPuMTLenWYE4J
-	 dehGK5kzMyX/BQYaOlNcldrHCHKPomvIyS2jnW1JZQDMF0ruEbPA5PTnJD6rS5VYEfw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=none header.from=pengutronix.de;
-	spf=pass smtp.mailfrom=pengutronix.de;
-	dkim=pass header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b="NwhX0mN/";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
-Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795767874;
+	b=Y2Qy2pnf0ViuP52DYZhrmch365cmNtFO4hPVUbWMMAeub6PCEmZTjSyBCurCDRVWiFah
+	 nGh22wOp8ziFEN/guhaCwjuTYAFGJ469DVeJFIKDlQzX7DeQIxd0Z9+P23W8hpbETuwDo
+	 NCrPBVw5qweHuNHYNGFbICRP9xgMmVeg7qlyL8odlwnFmzyYcbktJs+EcW5lugSVBmctT
+	 oQB67YBcwCbIY7nBn9AXrzoG18Zd6N9dw31fupPPpmsQPvHLnasEVFGoWIQjBQ+o4mzhF
+	 ksWyPdHJ3rZwXq4eH34zBRUk6kt3c+vRjVFURrG2BzFN4A6PHgaq6HmKeiwx1gwr3tw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795767874;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=clCUkJmrvj16kl83LPMA6kvCuKRRhj6JejeF30H3Ws4=;
+	b=Eo9ZlZZWYtRUqsI5mm9k4QbxzrqUqAYM9DvzG89JMwTOvo0qWoMpxz9U26041Pngod+0
+	 +Qi9DVaNf0YHlircKxmGY64H9ekyWkOWuerQWaC30ZhuRunNUwN7ypCZZrsTQ/X7WyOZo
+	 rB0ofkP4x/jK480lpH8bKwfB2UJzT86/ZPDUVqDhQ6mmZq5doV5ZwRQ00KiESteQDXJ/4
+	 0Ki8Tu3XftoigLZhMDbZuljxPoF32BSaXYHnzhR2oJ7VzhO3vLXYXgNp3bODyMS+60aaY
+	 4Yy7AmVWLnUkN1FfBHkkLVVsJOUjXVlWDv5UV5GQZvjgUKpwtCZN5uEfReroZwamEag==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FPk8Fzhq;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F3AB606A31E
-	for <bridge@lists.linux.dev>; Fri, 27 Nov 2026 05:53:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6F3AB606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 438CF606A323;
+	Fri, 27 Nov 2026 08:24:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=NwhX0mN/
-Received: from ptx.office.stw.pengutronix.de (ptx.office.stw.pengutronix.de [IPv6:2a0a:edc0:0:900:1d::109])
-	(Authenticated sender: relay-from-ptx.office.stw.pengutronix.de)
-	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 809272004B4;
-	Fri, 27 Nov 2026 06:53:32 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
-	s=20260414; t=1795758812;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=CJVSd+Wq9RvOR9XH+zDJ1/ZiXPZMqlEQ5ITdd3R2yzA=;
-	b=NwhX0mN//G4M2a0VYDKm6nUkkDMwG4vBR6RV+efZVeauhRpBofw27nPjTHtysIVGBbB68U
-	T1/ruXPRbRVTZUUM6qZnrttoRX/sLFaOGbBaibWRRw0/gHZxLCfLFlbG6zQvNHV2hPn+v4
-	MeozIWKe+3c9KgwLHn5auheoG/U7AM8h+AGrtzOIJbNMV7MqYO6zdKK3sbEcgMvstZjdxY
-	r80NQuTEunZSvVmnMK7ZWiCD8l5TjaN8rhAG7NUIaPzn5dFPpL0w5clYpY1iObkI/yFzTB
-	bDM6em2UEiWWjRLQVnTLV/1PHPqDnNsYE6iIMGygPVXw5cI8pSUm6Oa+Ndkh2A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
-	s=20260414; t=1795758812;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=CJVSd+Wq9RvOR9XH+zDJ1/ZiXPZMqlEQ5ITdd3R2yzA=;
-	b=HdgxwwqaDqMVorUtQsozvqx1uq3VSG9Cm4HrocEafLbEy0MIMbbpxwoFUvhGmxwGa7dBwu
-	vqweP2iUC9pSVz4kQeNQQ0LVx1+ByJqb5+o/2aJfCtET773GJ5WmiWgaKyE7bkWFqTnod8
-	8brAm5W1xDCnKE/Sce5dvqu8P8xiwAF8MqccbOWqUCyRsgO4WZEcpDL+GI2248O5EcgaXc
-	FcrM/UfT1BUSsVdObvEdn7P/NU7Bsd+nVUceUoWvVieS0sQY5l9gvNC9HfBOiGgM/33/Qh
-	A/jRJJFtcrOiTAaJVpnZfCoYIxDLaE842Hqd5Zo+Qxyg4ppPnx9tae0R7DA22A==
-ARC-Authentication-Results: i=1;
-	ORIGINATING;
-	auth=pass smtp.auth=relay-from-ptx.office.stw.pengutronix.de smtp.mailfrom=ore@pengutronix.de
-ARC-Seal: i=1; s=20260414; d=pengutronix.de; t=1795758812; a=rsa-sha256;
-	cv=none;
-	b=FY/lZxDa02OO8cvJfh8T2ZeL82qhacfC2w4P0dwk8fFzdghocHtKg5W3dK/FBb+uW0Brdk
-	TrhgMkvKjvxF9jz2qBy8UykWv+F2XDfXLqHFOlGan0oH/nzzm1X5D60E9LtnZkiCEaJf3K
-	yDA4ckQnlRSBXaa+z5+rM/ZEoSQ4emCvg4ygcXG2HrIOCpxneqJmghM3RYfWuSRJpY1y/H
-	kvXGmhHXqKNGSIiGVXTz4JMTyU2NjwAomU3lxrORAihz+104lrrmqj7Zr/Ek/NWMMkKJiG
-	ySi3eTmTKz7i3JuVEHYg1QeHL4ASsphbM7C2X1PuadKwzfVmGsRWiwbbR6G4XQ==
-Received: by ptx.office.stw.pengutronix.de (Postfix, from userid 1058)
-	id 6A29E1BF4EE; Fri, 27 Nov 2026 06:53:32 +0100 (CET)
-Date: Fri, 27 Nov 2026 06:53:32 +0100
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Woojung Huh <woojung.huh@microchip.com>, UNGLinuxDriver@microchip.com,
-	Andrew Lunn <andrew@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Florian Fainelli <f.fainelli@gmail.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org,
-	bridge@lists.linux.dev, kernel@pengutronix.de
-Subject: Re: [PATCH net-next 0/5] net: dsa: microchip: let the bridge decide
- about link-local frames
-Message-ID: <awka3GOt3XIKURcX@pengutronix.de>
-References: <20261126-ksz-stp-link-local-v1-0-39aed15f6271@pengutronix.de>
- <awgHiY9mcEAD1C34@skbuf>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FPk8Fzhq
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0251A1F00897;
+	Fri, 27 Nov 2026 08:24:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795767873;
+	bh=clCUkJmrvj16kl83LPMA6kvCuKRRhj6JejeF30H3Ws4=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=FPk8Fzhqmz3lsVmKocfY/zbgpLEKVAQOrHmdMFxLCKTS8+7/G9XflNl0RadA4MZg8
+	 ufxqpi3z1DFUSwT3+Vu+yv+iSk0dzo04W4D39RfqBYuIg94jNmUiz/LUsUwP+2vj+3
+	 b+jZUMTAzBhmslZwrLUrsa5mpuxOKNPvVH3ROtw2yC8pfCvz/9mVVxoZOFIZfX4gUU
+	 8xtXE6cPq5+TsbphFZhp+WhfewnPzSF5M3jXxTvMg+MNlTFldJUQvtN3M41N4GMKLM
+	 HI4L70BxHHLw4/nrPOI4ukUcPdwxO6TrlE1V1ONuv2x/tBdskujF1QSJDcAWoVvK7i
+	 500W+x5t/DGIg==
+Subject: Re: [PATCH net-next 2/5] net: dsa: microchip: ksz9477: do not keep
+ the learned port in FDB entries
+From: netdev-bot+sashiko@kernel.org
+To: o.rempel@pengutronix.de
+Cc: woojung.huh@microchip.com, UNGLinuxDriver@microchip.com, andrew@lunn.ch,
+ olteanv@gmail.com, davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org, f.fainelli@gmail.com,
+ razor@blackwall.org, idosch@nvidia.com, netdev@vger.kernel.org,
+ bridge@lists.linux.dev, kernel@pengutronix.de
+Date: Fri, 27 Nov 2026 08:24:32 +0000
+Message-ID: <179576787253.3135.17885676621555467617@kernel.org>
+In-Reply-To: <20261126-ksz-stp-link-local-v1-2-39aed15f6271@pengutronix.de>
+References: <20261126-ksz-stp-link-local-v1-2-39aed15f6271@pengutronix.de>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -98,30 +65,115 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <awgHiY9mcEAD1C34@skbuf>
 
-Hi Vladimir,
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider.
 
-On Thu, Nov 26, 2026 at 12:23:55PM +0200, Vladimir Oltean wrote:
-> I didn't go into any sort of detail in these patches yet, but they
-> reminded me of this thread:
-> https://lore.kernel.org/netdev/20250127125426.3b7cdkb75o5dbcr5@skbuf/
->
-> IIRC Tim's problem there still wasn't resolved (he tried to use the
-> reserved multicast address tables). Does your series address his issue
-> too?
+Critical: 0 · High: 1 · Medium: 0 · Low: 0
 
-If I see it correctly, Tim had two concerns:
-- the reserved multicast table assumed that the CPU is the last port,
-- and 01:80:C2:00:00:0E was not forwarded.
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-The first one is handled by 96baf482ca1f ("net: dsa: microchip: Fix
-reserved multicast address table programming")
+- [High] The fix covers only part of the bug its commit message
+  describes.
 
-This series addresses the second one. :0E is trapped to the CPU, the
-tagger no longer sets offload_fwd_mark for it
+--
 
-Best Regards,
-Oleksij
+net: dsa: microchip: ksz9477: do not keep the learned port in FDB entries
+
+This patch changes ksz9477_fdb_add() so that a static FDB entry no longer
+inherits the port map of a learned ALU entry for the same address. If the
+ALU entry found for the address is not already static, its port map is
+cleared before the requested port is set.
+
+> diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
+> index 972703fe7454f..98211d9835734 100644
+> --- a/drivers/net/dsa/microchip/ksz9477.c
+> +++ b/drivers/net/dsa/microchip/ksz9477.c
+> @@ -800,6 +800,13 @@ int ksz9477_fdb_add(struct dsa_switch *ds, int port,
+>  	/* read ALU entry */
+>  	ksz9477_read_table(dev, alu_table);
+>  
+> +	/* The ALU table holds learned and static entries. If the entry is
+> +	 * not static (learned, or none found), clear its port map, so that
+> +	 * the static entry lists only this port.
+> +	 */
+> +	if (!(alu_table[0] & ALU_V_STATIC_VALID))
+> +		alu_table[1] &= ~ALU_V_PORT_MAP;
+> +
+>  	/* update ALU entry */
+>  	alu_table[0] = ALU_V_STATIC_VALID;
+>  	alu_table[1] |= BIT(port);
+
+[Severity: High]
+Can the stale static entry from the commit message still be created when
+the existing ALU entry is already static?
+
+When ALU_V_STATIC_VALID is set, the port map is kept, and the
+alu_table[1] |= BIT(port) adds the new port to the old one.
+
+For a user replace, the bridge does not tell the driver about the old
+port. fdb_add_entry()->fdb_update_dst() in net/bridge/br_fdb.c only
+rewrites the destination:
+
+net/bridge/br_fdb.c:fdb_update_dst() {
+    ...
+	br_fdb_dst_write(fdb, dst);
+	return true;
+}
+
+Only RTM_NEWNEIGH is then sent for the new port. That differs from learned
+migration in br_fdb_update(), which first sends a delete for the old
+port:
+
+	if (source != old_port) {
+		br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
+		br_fdb_dst_write(fdb, dst);
+
+So in the replace case, port_fdb_add is the only notice the driver gets
+that the address moved. Take this sequence:
+
+  bridge fdb add H dev lan1 master static      -> ALU static {lan1}
+  bridge fdb replace H dev lan2 master static  -> ALU static {lan1, lan2}
+  bridge fdb del H dev lan2 master static
+
+After the replace, the bridge has H only on lan2. ksz9477_fdb_del() then
+clears only the deleted port:
+
+	/* clear forwarding port */
+	alu_table[1] &= ~BIT(port);
+
+That leaves a static {lan1} entry. The bridge no longer tracks it, and it
+never ages out. This is the same result the commit message describes:
+
+  "The entry stays static and still points to lan1. Static entries never
+  age out. So the switch keeps sending frames for H to lan1, even after H
+  has moved."
+
+Would it be better to always set the unicast port map to exactly BIT(port),
+by clearing ALU_V_PORT_MAP unconditionally instead of only for non-static
+entries? mv88e6xxx_port_db_load_purge() already does this for unicast
+static entries:
+
+	if (state == MV88E6XXX_G1_ATU_DATA_STATE_UC_STATIC)
+		entry.portvec = BIT(port);
+
+Multicast uses the separate static table in ksz9477_mdb_add(), so it does
+not seem to go through this path.
+
+The note below the --- line already mentions this gap:
+
+  "If bridge fdb replace moves an existing static entry to another port,
+  the entry still keeps the old port. This patch does not change that."
+
+That text does not end up in git history, though. The commit carries a
+Fixes: tag, so the commit log does not show that the bug is only partly
+fixed. The following ksz9477 change sets ds->assisted_learning_on_cpu_port,
+which creates more static entries on the CPU port that this OR-merge can
+act on.
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261126-ksz-stp-link-local-v1-0-39aed15f6271%40pengutronix.de
