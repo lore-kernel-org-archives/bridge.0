@@ -1,87 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795872906;
-	b=cWnN3av42jwE/v7llqDEWzNTroKAYS02byp8xyt7qIPxjna5I8qVIxqbbNbGGckDM2Mg
-	 vPvkAj5GNIh1smLLZavqTEGdlmKpO2dnbA/ry7QI+1bmPNZdzZijxg/E8w94cfAzwcxvA
-	 QMFbHM+KW/bYHrVWBSl/HN/GJe2zZMg6aJp9UA3WKgCAo83PHs2BBNbRo47pl2ap+04hU
-	 S/zEGG8eiVmcbD2WknmX3o+J7wcrGufrV3+buL1SeB5FADQyITP5szsqRBMswPjqqCMzF
-	 I80P9WCeh3oos2ulDGCyH3tCNRTwGz8p+MMGpVjbDjVPUWjjS9Su8ekLfCP9inAByaQ==
+	t=1795872908;
+	b=uLNvAwncEBPUw74G8NDlh7KuogNmzKyB+CeKPFgp1JbfPiktax3hb0h8WG2QNs7OQz3c
+	 aPnoail8Pv+srI96PC7yR736mcEM5Kpdp2Xog5BfkRe1lgweb/43LTLelhHZw2cnBCa/s
+	 RchQDzPmvaHigultQcJ+DdUoz1C2d4B3SN00UoOzkxhiHDHLqnAf0oXKos5rG/PB+0c+H
+	 drWwC5ZIbqQoozKzMUxBmWViKMb+ETIMcAvjp0Kxb/B3wc6shuwhvjV2Mzh6P2UTBe93b
+	 LWg9zwFGiKwTpn5Jjtj2QgnPbYpGYY/qPRYp254b0vqn8fY1lEmd0udFKYLoK45r31g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795872906;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795872908;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=onrn3RJVqKNpamhnrDLLJaXa7ducP+r9ZkZuOTHwGqs=;
-	b=fP3UDBaNh6zcHgZ3Gp4ECdSnOpDRK7NBToFLPHxp5tyKmKWt0wmYMVehngyZVy/rkDLS
-	 iVGBNEmgpto/E0Nj2QFjpxtHNWp5gR1dGc2QtWsXBlq79UB5EOu3e0adSddVqzt3DEx0t
-	 EQhJb15HxrMyZDlOJSnLjZx9EbWq8B0lziY/iBNfeCCqOPgBdUVJe0cw6Ury+SmkO7SoT
-	 +0bwUePrJ0pCmdz68hpk2Z9TJh8Ghd13doViGmWpB8X7usnk+t5Z6zA/iOm1fBKdzxy2s
-	 MRMcN2H+Y+D+iEvQAPaKoijMpYpWWo3BN7cOMkShIGrbP9I4JqpT8wKzKmWe83e8Xyw==
+	bh=1nx0IzBlV3p41W0idmpXgDKraGpG2B/QDdKxYpSRZy4=;
+	b=dttGN5BRRMeRevCKexX1T/sNI8/BmgYyXsp7Ex8GuJsl/t0RRxlIyKn70eGEQ7xhEm5g
+	 z/q9nD4lyHA7ltLHQlpaagZRiucURR/x5hYflIGJZ/2CnD5WDtWL123bht232RpBUdKKK
+	 04CR16LlSEEv6YWilf1rBJJ1YtqS2qbYl5sVlfbaPD+Gc03EdQ1dhRHsnTKO6w9Ui/btg
+	 w0yDw/TerQZpdxaLi0JUpTgq3cjWMuBRb4DgwmLvX0tR2c+Elee7eoLVCJgT9DW5oHlx+
+	 qmcOD4zm6JE+9BCo1DmZxyvi+TnPbKQWvyuOCWYgWW8ugREGobqdfB+95HBV33lBPZQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bairaktaris.de;
 	spf=pass smtp.mailfrom=bairaktaris.de;
-	dkim=pass header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=iXWwIM9t;
-	arc=none smtp.remote-ip=209.85.208.41
-Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+	dkim=pass header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=pT5qBdAF;
+	arc=none smtp.remote-ip=209.85.208.48
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D33F4606A324
-	for <bridge@lists.linux.dev>; Sat, 28 Nov 2026 13:35:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D33F4606A324
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0177606A323
+	for <bridge@lists.linux.dev>; Sat, 28 Nov 2026 13:35:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B0177606A323
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bairaktaris.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=iXWwIM9t
-Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-6ba38c41804so10692421a12.3
-        for <bridge@lists.linux.dev>; Sat, 28 Nov 2026 05:35:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=pT5qBdAF
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-6ae305e3bd9so3908275a12.0
+        for <bridge@lists.linux.dev>; Sat, 28 Nov 2026 05:35:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bairaktaris.de; s=google; t=1795872904; x=1796477704; darn=lists.linux.dev;
+        d=bairaktaris.de; s=google; t=1795872906; x=1796477706; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=onrn3RJVqKNpamhnrDLLJaXa7ducP+r9ZkZuOTHwGqs=;
-        b=iXWwIM9tdkkkRiCATrAmApigAuhBVI37Vyx8ommCuSpIcWKK3VfXZzOSf0ZiJbd1PD
-         Gwcp5tr/uyXLUBtXpa9I3HYIVdu93qRNjJhadt4tucd0kBzXbVDj35tN+KZ+99/x44m5
-         2URFU9t+qnhYTGEfF4klC6+kDxVDVM8TOUnn0wqPtkrOhY6yFC/bVY+4VEsAhORT8TCN
-         ar8GQNaX7B+dYe2XpwRLayBkBicfWKoZZzZ0SQh+gx/yWCbC0cQTfcvfbuNID5at0QKu
-         hGZ25JA0y1m+MonhQ1qAqVAfe9H3nD1eZAvcTzfGoMdjvvwccfAHZUtB4SM4DDXYAMZ3
-         Z2wQ==
+        bh=1nx0IzBlV3p41W0idmpXgDKraGpG2B/QDdKxYpSRZy4=;
+        b=pT5qBdAFpMf+9jPjL7LNaXezgrQU3CJ9RMD1ZeDBung1w9/3n0ObqulWtkL6uWplFC
+         I/o0V1FMdUnwHHFyjlp8iK0UdtOVNh12shUkv4SSuitYv3k7RenS1fTLyfFD0i+IkdNG
+         WAazwB7FyAEpA1/MXF/rXsrCHIxZSqgj6uucbGmCDtcQz4ro/x2MKoltbAXm8eWgkvi/
+         Ogik4kPD4zuYJGzak+yk13YFKAsXNLxBCBfwKGAQjkUPJclz6wqFr7imR8RaruRqBFFh
+         uh/zc+qcyCWIq5Fl4i4Fpjq5e/N8+M1iBYxi9cdaEiekjXeap36xhKtlYCsa7X5E3RuD
+         vYiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795872904; x=1796477704;
+        d=1e100.net; s=20260707; t=1795872906; x=1796477706;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=onrn3RJVqKNpamhnrDLLJaXa7ducP+r9ZkZuOTHwGqs=;
-        b=ZpzY+XiHKKfWF3rOxxOzvVBJzfWgpgAa5RhmcfkRHXTm2YcfyEMKZjaV8/JXEkp4EG
-         7YJ8HjIP/ZCCMTm0qR8hldchC/qaySeUcqIDKIQ5Z2pH+FZ7zhsQQi900jrrx1q0cypv
-         xpUyjSV5OKTqbSi0SmWcQd+8ZeEqY1BZR30R7AIoDvMN3xWqhOSwvlPweQfq4fI5sOMP
-         pswmtLXl3ZVEN55BdpjZ7wb6Y75f4hEoKki/CpE/5+2Apm78k0prEp+GyWPhTQrWqGL6
-         LgH2Z6djo8Mrotlp6sEhqqUOK4BlWOGTf3ZRUSnRNCeHx+x6y/SFD+qe835Mir3iURxk
-         LnWg==
-X-Forwarded-Encrypted: i=1; AL+hErHSFI3PRKDLw8yTcyYCxJYD2bnHHzDIHBiO+VaiNkIpSLzXHPDnm3CEPDnmcilXsAQ3fNCoXuI=@lists.linux.dev
-X-Gm-Message-State: APuU4Z/XmZHvsXYNSebjFO+tFx5OLkx2/xd8sSW223oYNIS9xG84RnLr
-	awB48LERB8YTLs+Kdt4dWp0+kXogQCo8uKwoq3WpQ3zqW2EQdTpU3IpkyLw1g1EjZw==
-X-Gm-Gg: AZFdTZdrgxfA7jsi8acmIfEh9ekhjjFB3GB60ij3pUeUL/rgeZylHwpYc0ajg0YrEEz
-	sL4WTqltW8uT8GJvjFBtAdDFbaJBapckvA4z0m8MSkPwX/BrZUoZml0SibpuAR2oPS4puHEfajL
-	HFzrLkmju9/4ykZOPTK3K0kgLo2mDDlbRvSlTTuY8hdrNup0leE2BR7AY3fibwG04eX9BOWRutp
-	josWFVstQwqSPkh1gsU9kLhGxgNVT/eUM6jUdzXuQYUGVYQPczZZEmuCx8svR0y/fMxofaj/TCw
-	mmaNCChBTnXTaC5qOBE/Q11LIMoSDpSdPI9H0YJZT5ZDVLwLaw4dYDjY9hRgN1pz5KHbwLAcVbe
-	2JxJcCVANrTa3gicFUiCKK3zZXyXRjSPKDstyg34W49JFZmKanSu1S/uO6X/eqQBEf9/S5Ckwer
-	SQFwH+wujCC2LTt2Lb+n+/6OQJ/fddGJtKB9oPI69UHkOXkQ8/TNcgJ2MM1HXy2zTeccqBq2HjQ
-	GbP8nJ6KxNMi+dasyT+pTYZunXfW7CmXBoAOypBLQ43d9LyD6WJze/AXxhMcZlSXZbnl8+JvjN2
-	CGmfYe644tK81c4SQyHjRMc5t40293kAbLtwuF6YBpap08EE+Pl7Ds4cSxa4WfosZeUx3SAEtMV
-	XmJiyY3+mQmxtNmzQ8xudy3uoA3bvmlbxPLCkUiY/jlfCA5iRg1WXuhF4NMufuRepprjrQPsFQH
-	4D5xhWts173No8Jrvrtt4qLg6HUdPUq1ny36xypOkJz5dbS+MvtM6yMDHl6LOqOnFodRLf/Qm77
-	G9ftEcfArMSyPaVEGr6RbVZ2iwk30lmwwhsKoC2K1IK3vE0vdGvnsQUVzJafd79nn+Y/SprqJZr
-	UZp6jRr7fbtGfP/VgtPyNvthPdqKSpFqiufnNbdaIDlQzTdL7l/D/g==
-X-Received: by 2002:a05:6402:3645:b0:6ba:c85e:c0e0 with SMTP id 4fb4d7f45d1cf-6bac85ec268mr13362424a12.28.1795872904135;
-        Sat, 28 Nov 2026 05:35:04 -0800 (PST)
+        bh=1nx0IzBlV3p41W0idmpXgDKraGpG2B/QDdKxYpSRZy4=;
+        b=lXHZFLHF8lCjOYCxGxRD6l18GJFllfcJXoma8rxovZauyMkJwyjXOQ+YuuoyAQjNEa
+         bbo8TCOXmCAZE3pv/LbNz+IIwmZY2ephNEY0s1qRMxJC0yXBAxLwX6J2MdZvYpiTLzX1
+         05qIVsnbuFXpjFMrhBCql6hHsKdIJ7iva1pgON5Ee6I+e8k9sVWtTE4xDieaqACRuKf2
+         S3DBzAi9FDvByX/BvyUdM1edGx1o/kfpC8XdlfAL1srwYns5TwyVhzUWP2N/MwPp+8A/
+         ZAbRuXf91eqTc7rf+SeDql9F5gB35b0oA3vg+UqV5aS2L0w1fM2eb0sy0bDPEagUBlA7
+         9Law==
+X-Forwarded-Encrypted: i=1; AL+hErGtWlE7EBNukMFoZkWXx2hNLpfhamZWoZ2B4AyfwJN0G+Nbb8OLY5M6neR8lGq99V8ad1xCJNU=@lists.linux.dev
+X-Gm-Message-State: APuU4Z8gBXSB0q2O2OWbZPPB6vN21XzFUdS5BLcGqovTDrtnSKgYeMfM
+	hfdlf/hEXnag9oF57lWdO+v2s5xomzmxhZ4HjW82xCKaOAPR0JLpaJ8CBmG8Ly3Y79L+bYiA/JU
+	/UlC34w==
+X-Gm-Gg: AZFdTZed1lWyt6FZXYgh5MzU0C2WOaoiz245yfDZS1bCNF5WA52J5jEGCqKSBML8Dtm
+	plDRPtxtSZ9yrbMT5Xw1yzFPsO3tZ+qlbrTqA3LGqaQBpE1VWvsa2yezE0hOt2mIwSKrY+fOUxF
+	LHAs9WdOF19o4T6kNniOWKNqv+eg4ToMisKytBgrwHr50HBbBQ5mqt7Gzo2NGzh1MgzT5sO0Yir
+	UlMod3bgnx/SRyEK0oqWiK0hPwSgelOjjzViB2gYpD7FV+dzRDcMDnb3bmzZRxREEPlTy3IN01o
+	a/D5AjMKmfbLu81ZQwvrPaRUuMSZEjNlQBufCw9vqC/wFcpMm6LsZ8jsC+2QEPgKELbfoloC2fu
+	/42STqkeATi+N1/JwarAN1Qca/MnG3sit3cYdOw3uTOulfK52mxJu+jJhH5eA/f9jivP+FiFCSm
+	XctIwAoTRr0Ux9xMZhlepvPjNMQ5RJPsL9DvzEczoh3vWnyzc38jv4jhPBHKOazhaR9iEBo3wMU
+	jLGNFFzYTVjCCx4EX6u4mOD/15MHcnJIgi84Ruag7Kcmr6U0Sems0ubG/kJ2mtej/+A/nHfgkLa
+	vZUdb3L7N7GUaiQ/MHqdewimLbindoJ3u9J93LqyWgvEgZytOZX0dJz20E4k7C5Nsi8WGjcWtwq
+	R7tMyCsHg2XYPP8CY4XIipMeft3TANxuAn0dB7IjUDMRcEgvfpEpxFlxPP06DSWkRl24lmgkBJu
+	y06uk6ap66ZOrPPeB8ixR+OVhC5GxZq8CoHsRJ8zyGvxFXiXKkFCY0ybWILH9BwchZPq/6IuERa
+	IQ3jUEZcyePZ1WQQ3IJUVCZ1wUWlV+5J3G4gSm90Ne2MiOtd4h3VGx/vlo84ZSTw59qMy1W9Wbo
+	vmz6YhgQtwRbeTIaExstKdakDRjbIBS0eCOSi+73V7kwenLcW2Derg==
+X-Received: by 2002:aa7:d353:0:b0:6ba:22f7:189e with SMTP id 4fb4d7f45d1cf-6ba37d63cdbmr13811986a12.7.1795872905760;
+        Sat, 28 Nov 2026 05:35:05 -0800 (PST)
 Received: from Desktop.tail070c67.ts.net (p200300f247080f000000000000000a27.dip0.t-ipconnect.de. [2003:f2:4708:f00::a27])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6bb1d49d992sm5282111a12.26.2026.11.28.05.35.01
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6bb1d49d992sm5282111a12.26.2026.11.28.05.35.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2026 05:35:02 -0800 (PST)
+        Sat, 28 Nov 2026 05:35:05 -0800 (PST)
 From: Julius Bairaktaris <julius@bairaktaris.de>
 To: Andrew Lunn <andrew@lunn.ch>,
 	Vladimir Oltean <olteanv@gmail.com>
@@ -100,9 +101,9 @@ Cc: netdev@vger.kernel.org,
 	Tobias Waldekranz <tobias@waldekranz.com>,
 	Linus Walleij <linusw@kernel.org>,
 	Pawel Dembicki <paweldembicki@gmail.com>
-Subject: [PATCH net v2 1/3] net: dsa: do not run queued FDB events after the port left the bridge
-Date: Sat, 28 Nov 2026 14:35:01 +0100
-Message-ID: <20261128133503.3887987-2-julius@bairaktaris.de>
+Subject: [PATCH net v2 2/3] net: dsa: hold the device a queued FDB event is reported to
+Date: Sat, 28 Nov 2026 14:35:02 +0100
+Message-ID: <20261128133503.3887987-3-julius@bairaktaris.de>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261128133503.3887987-1-julius@bairaktaris.de>
 References: <20261128133503.3887987-1-julius@bairaktaris.de>
@@ -117,414 +118,91 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-FDB events reach DSA from the atomic switchdev notifier and are handled
-from dsa_owq. The work builds the dsa_db from dp->bridge, which
-dsa_port_bridge_destroy() clears and frees when the port leaves the
-bridge or fails to join it.
+dsa_user_fdb_event() queues an FDB event on the DSA workqueue together
+with the device the event was emitted for (orig_dev), and
+dsa_user_switchdev_event_work() reports an added entry to that device
+with SWITCHDEV_FDB_OFFLOADED once the switch is programmed. No
+reference is held on orig_dev. It is a DSA user port only when the
+entry is on one: for an entry on another port of the bridge, which DSA
+installs as a host address, it is that port. DSA flushes its workqueue
+before one of its own ports leaves the bridge, but nothing waits for
+the queue when a foreign bridge port is unregistered, and a work that
+runs after the device was freed reads it in br_switchdev_event():
 
-When switchdev_bridge_port_offload() fails in the FDB replay of
-dsa_port_bridge_join(), because dsa_user_fdb_event() could not allocate
-its work item, the entries replayed before the failure are still
-queued. The rollback clears dp->bridge, and the queued work dereferences
-it:
-
-  KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+  BUG: KASAN: slab-use-after-free in br_switchdev_event+0x41b/0x550
+  Read of size 8 at addr ffff888004d00000 by task kworker/u16:0/13
   Workqueue: dsa_ordered dsa_user_switchdev_event_work
-  RIP: 0010:dsa_port_bridge_host_fdb_add+0x141/0x5c0
+  Call Trace:
+   br_switchdev_event+0x41b/0x550
+   notifier_call_chain+0x9a/0x2a0
+   atomic_notifier_call_chain+0x5a/0x110
+   dsa_user_switchdev_event_work+0x32c/0x4c0
+   process_one_work+0x8e1/0x1640
+  Freed by task 139:
+   kfree+0x1b7/0x550
+   device_release+0xca/0x250
 
-A bridge leave has the same problem for an event that the notifier
-queues after dsa_port_pre_bridge_leave() flushed the workqueue: nothing
-orders the dp->bridge check in dsa_user_fdb_event() against the clear,
-and on a switch unbind the work can also run after dsa_user_destroy()
-freed the port's net_device. The notifier and the taggers read
-dp->bridge->dev and ->num without locks while the bridge is freed.
+Hold a reference on orig_dev while the event is queued, as mlxsw,
+prestera, sparx5 and cpsw do for the device of their deferred FDB
+events. Unregistering the device then waits for the work, which does
+not take RTNL.
 
-Clear dp->bridge, wait for those readers with synchronize_net(), flush
-the workqueue, and only then free the bridge. The work reads dp->bridge
-once and drops the event when the port has left; the FDB helpers take
-the bridge from it. The join rollback destroys the bridge before it
-tells the switches that the port left, as dsa_port_bridge_leave() does,
-so a dropped event programs nothing after that.
-dsa_port_bridge_dev_get() and dsa_port_bridge_num_get() read the pointer
-once, and dsa_port_bridge_create() publishes it with
-smp_store_release(), so a reader that sees it also sees its fields. The
-other readers outside RTNL only test the pointer, with READ_ONCE().
+DSA held the device until commit 425d19cedef8 ("net: dsa: stop calling
+dev_hold in dsa_slave_fdb_event"), when the report still went to the
+DSA user port.
 
-The rollback oops was pointed out by the hosted Sashiko review of a DSA
-host FDB series [1]. In QEMU with KASAN, dsa_loop given FDB operations
-that take 15 ms, 40 static FDB entries to replay and the N-th
-allocation of "ip link set lan1 master br0" failing for N = 1 to 150,
-net oopses as above in 3 of 3 boots, and with this change in none of 3
-boots. With the change, 4 to 5 host addresses per boot stay on the CPU
-port after those joins (5, 4 and 5 more additions than deletions).
-They were added by replayed events that ran before the allocation
-failed: br_switchdev_port_offload() does not undo the part of the
-replay that succeeded, and this change does not alter that.
+Found by an LLM review (Claude) of a DSA FDB change of mine. In QEMU
+with KASAN, with dsa_loop given FDB operations, assisted learning on
+the CPU port and a 500 ms delay in its FDB add (test-only changes),
+deleting a veth bridge port right after an address was learned on it
+gives the report above in 3 of 3 boots, and nothing with this change
+in 3 of 3 boots.
 
-Fixes: c26933639b54 ("net: dsa: request drivers to perform FDB isolation")
-Fixes: d3eed0e57d5d ("net: dsa: keep the bridge_dev and bridge_num as part of the same structure")
-Link: https://lore.kernel.org/all/179480421335.3136.15795220009190349154@kernel.org/ [1]
+Fixes: 93c798230af5 ("net: dsa: call SWITCHDEV_FDB_OFFLOADED for the orig_dev")
 Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
 ---
 v2:
-- The other readers of dp->bridge outside RTNL, dsa_port_to_bridge_port(),
-  dsa_find_designated_bridge_port_by_vid(), dsa_default_offload_fwd_mark()
-  and dsa_tag_8021q_find_port_by_vbid(), use READ_ONCE() (hosted Sashiko
-  review of v1).
-- The comment in dsa_port_bridge_destroy() speaks of a tagger that read
-  the bridge; a tagger that reads NULL is patch 3.
-v1: https://lore.kernel.org/all/20261121185821.1471559-1-julius@bairaktaris.de/
+- Rebased on patch 1, which changes the same exit of
+  dsa_user_switchdev_event_work(): its out: label is above the
+  netdev_put() added here, so an event it drops still releases the
+  device. NIPA could not apply v1 after patch 1.
+- The message says how the bug was found.
+v1: https://lore.kernel.org/all/20261122173347.791590-1-julius@bairaktaris.de/
 
- include/net/dsa.h   | 10 ++++++---
- net/dsa/port.c      | 50 ++++++++++++++++++++++++++++++---------------
- net/dsa/port.h      | 26 ++++++++++++-----------
- net/dsa/tag.h       |  4 ++--
- net/dsa/tag_8021q.c |  2 +-
- net/dsa/user.c      | 25 ++++++++++++++++-------
- 6 files changed, 75 insertions(+), 42 deletions(-)
+ net/dsa/user.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/include/net/dsa.h b/include/net/dsa.h
-index 5d12191b6f6f..47e2162f1d7d 100644
---- a/include/net/dsa.h
-+++ b/include/net/dsa.h
-@@ -758,7 +758,7 @@ static inline struct net_device *dsa_port_to_conduit(const struct dsa_port *dp)
- static inline
- struct net_device *dsa_port_to_bridge_port(const struct dsa_port *dp)
- {
--	if (!dp->bridge)
-+	if (!READ_ONCE(dp->bridge))
- 		return NULL;
- 
- 	if (dp->lag)
-@@ -772,12 +772,16 @@ struct net_device *dsa_port_to_bridge_port(const struct dsa_port *dp)
- static inline struct net_device *
- dsa_port_bridge_dev_get(const struct dsa_port *dp)
- {
--	return dp->bridge ? dp->bridge->dev : NULL;
-+	const struct dsa_bridge *bridge = READ_ONCE(dp->bridge);
-+
-+	return bridge ? bridge->dev : NULL;
- }
- 
- static inline unsigned int dsa_port_bridge_num_get(struct dsa_port *dp)
- {
--	return dp->bridge ? dp->bridge->num : 0;
-+	const struct dsa_bridge *bridge = READ_ONCE(dp->bridge);
-+
-+	return bridge ? bridge->num : 0;
- }
- 
- static inline bool dsa_port_bridge_same(const struct dsa_port *a,
-diff --git a/net/dsa/port.c b/net/dsa/port.c
-index 1f5536c0dffc..e41d3639f0f9 100644
---- a/net/dsa/port.c
-+++ b/net/dsa/port.c
-@@ -427,7 +427,8 @@ static int dsa_port_bridge_create(struct dsa_port *dp,
- 	bridge = dsa_tree_bridge_find(ds->dst, br);
- 	if (bridge) {
- 		refcount_inc(&bridge->refcount);
--		dp->bridge = bridge;
-+		/* Read without locks, see below */
-+		smp_store_release(&dp->bridge, bridge);
- 		return 0;
- 	}
- 
-@@ -447,7 +448,8 @@ static int dsa_port_bridge_create(struct dsa_port *dp,
- 		return -EOPNOTSUPP;
- 	}
- 
--	dp->bridge = bridge;
-+	/* Read without locks from the switchdev notifiers and the taggers */
-+	smp_store_release(&dp->bridge, bridge);
- 
- 	return 0;
- }
-@@ -457,7 +459,14 @@ static void dsa_port_bridge_destroy(struct dsa_port *dp,
- {
- 	struct dsa_bridge *bridge = dp->bridge;
- 
--	dp->bridge = NULL;
-+	WRITE_ONCE(dp->bridge, NULL);
-+
-+	/* An FDB event from the atomic switchdev notifier that still sees the
-+	 * bridge can queue work for it, and a tagger that read it can still
-+	 * use it. Wait for them, then for the work they queued.
-+	 */
-+	synchronize_net();
-+	dsa_flush_workqueue();
- 
- 	if (!refcount_dec_and_test(&bridge->refcount))
- 		return;
-@@ -528,7 +537,12 @@ int dsa_port_bridge_join(struct dsa_port *dp, struct net_device *br,
- 					&dsa_user_switchdev_blocking_notifier);
- 	dsa_flush_workqueue();
- out_rollback_unbridge:
-+	/* Drop the FDB events still queued from the replay before the
-+	 * switches are told that the port left
-+	 */
-+	dsa_port_bridge_destroy(dp, br);
- 	dsa_broadcast(DSA_NOTIFIER_BRIDGE_LEAVE, &info);
-+	return err;
- out_rollback:
- 	dsa_port_bridge_destroy(dp, br);
- 	return err;
-@@ -973,8 +987,8 @@ int dsa_port_mtu_change(struct dsa_port *dp, int new_mtu)
- 	return dsa_port_notify(dp, DSA_NOTIFIER_MTU, &info);
- }
- 
--int dsa_port_fdb_add(struct dsa_port *dp, const unsigned char *addr,
--		     u16 vid)
-+int dsa_port_fdb_add(struct dsa_port *dp, const struct dsa_bridge *bridge,
-+		     const unsigned char *addr, u16 vid)
- {
- 	struct dsa_notifier_fdb_info info = {
- 		.dp = dp,
-@@ -982,7 +996,7 @@ int dsa_port_fdb_add(struct dsa_port *dp, const unsigned char *addr,
- 		.vid = vid,
- 		.db = {
- 			.type = DSA_DB_BRIDGE,
--			.bridge = *dp->bridge,
-+			.bridge = *bridge,
- 		},
- 	};
- 
-@@ -996,8 +1010,8 @@ int dsa_port_fdb_add(struct dsa_port *dp, const unsigned char *addr,
- 	return dsa_port_notify(dp, DSA_NOTIFIER_FDB_ADD, &info);
- }
- 
--int dsa_port_fdb_del(struct dsa_port *dp, const unsigned char *addr,
--		     u16 vid)
-+int dsa_port_fdb_del(struct dsa_port *dp, const struct dsa_bridge *bridge,
-+		     const unsigned char *addr, u16 vid)
- {
- 	struct dsa_notifier_fdb_info info = {
- 		.dp = dp,
-@@ -1005,7 +1019,7 @@ int dsa_port_fdb_del(struct dsa_port *dp, const unsigned char *addr,
- 		.vid = vid,
- 		.db = {
- 			.type = DSA_DB_BRIDGE,
--			.bridge = *dp->bridge,
-+			.bridge = *bridge,
- 		},
- 	};
- 
-@@ -1041,12 +1055,13 @@ int dsa_port_standalone_host_fdb_add(struct dsa_port *dp,
- }
- 
- int dsa_port_bridge_host_fdb_add(struct dsa_port *dp,
-+				 const struct dsa_bridge *bridge,
- 				 const unsigned char *addr, u16 vid)
- {
- 	struct net_device *conduit = dsa_port_to_conduit(dp);
- 	struct dsa_db db = {
- 		.type = DSA_DB_BRIDGE,
--		.bridge = *dp->bridge,
-+		.bridge = *bridge,
- 	};
- 	int err;
- 
-@@ -1092,12 +1107,13 @@ int dsa_port_standalone_host_fdb_del(struct dsa_port *dp,
- }
- 
- int dsa_port_bridge_host_fdb_del(struct dsa_port *dp,
-+				 const struct dsa_bridge *bridge,
- 				 const unsigned char *addr, u16 vid)
- {
- 	struct net_device *conduit = dsa_port_to_conduit(dp);
- 	struct dsa_db db = {
- 		.type = DSA_DB_BRIDGE,
--		.bridge = *dp->bridge,
-+		.bridge = *bridge,
- 	};
- 	int err;
- 
-@@ -1113,8 +1129,8 @@ int dsa_port_bridge_host_fdb_del(struct dsa_port *dp,
- 	return dsa_port_host_fdb_del(dp, addr, vid, db);
- }
- 
--int dsa_port_lag_fdb_add(struct dsa_port *dp, const unsigned char *addr,
--			 u16 vid)
-+int dsa_port_lag_fdb_add(struct dsa_port *dp, const struct dsa_bridge *bridge,
-+			 const unsigned char *addr, u16 vid)
- {
- 	struct dsa_notifier_lag_fdb_info info = {
- 		.lag = dp->lag,
-@@ -1122,7 +1138,7 @@ int dsa_port_lag_fdb_add(struct dsa_port *dp, const unsigned char *addr,
- 		.vid = vid,
- 		.db = {
- 			.type = DSA_DB_BRIDGE,
--			.bridge = *dp->bridge,
-+			.bridge = *bridge,
- 		},
- 	};
- 
-@@ -1132,8 +1148,8 @@ int dsa_port_lag_fdb_add(struct dsa_port *dp, const unsigned char *addr,
- 	return dsa_port_notify(dp, DSA_NOTIFIER_LAG_FDB_ADD, &info);
- }
- 
--int dsa_port_lag_fdb_del(struct dsa_port *dp, const unsigned char *addr,
--			 u16 vid)
-+int dsa_port_lag_fdb_del(struct dsa_port *dp, const struct dsa_bridge *bridge,
-+			 const unsigned char *addr, u16 vid)
- {
- 	struct dsa_notifier_lag_fdb_info info = {
- 		.lag = dp->lag,
-@@ -1141,7 +1157,7 @@ int dsa_port_lag_fdb_del(struct dsa_port *dp, const unsigned char *addr,
- 		.vid = vid,
- 		.db = {
- 			.type = DSA_DB_BRIDGE,
--			.bridge = *dp->bridge,
-+			.bridge = *bridge,
- 		},
- 	};
- 
-diff --git a/net/dsa/port.h b/net/dsa/port.h
-index 6bc3291573c0..e665baf7454a 100644
---- a/net/dsa/port.h
-+++ b/net/dsa/port.h
-@@ -46,22 +46,24 @@ int dsa_port_mst_enable(struct dsa_port *dp, bool on,
- int dsa_port_vlan_msti(struct dsa_port *dp,
- 		       const struct switchdev_vlan_msti *msti);
- int dsa_port_mtu_change(struct dsa_port *dp, int new_mtu);
--int dsa_port_fdb_add(struct dsa_port *dp, const unsigned char *addr,
--		     u16 vid);
--int dsa_port_fdb_del(struct dsa_port *dp, const unsigned char *addr,
--		     u16 vid);
-+int dsa_port_fdb_add(struct dsa_port *dp, const struct dsa_bridge *bridge,
-+		     const unsigned char *addr, u16 vid);
-+int dsa_port_fdb_del(struct dsa_port *dp, const struct dsa_bridge *bridge,
-+		     const unsigned char *addr, u16 vid);
- int dsa_port_standalone_host_fdb_add(struct dsa_port *dp,
- 				     const unsigned char *addr, u16 vid);
- int dsa_port_standalone_host_fdb_del(struct dsa_port *dp,
- 				     const unsigned char *addr, u16 vid);
--int dsa_port_bridge_host_fdb_add(struct dsa_port *dp, const unsigned char *addr,
--				 u16 vid);
--int dsa_port_bridge_host_fdb_del(struct dsa_port *dp, const unsigned char *addr,
--				 u16 vid);
--int dsa_port_lag_fdb_add(struct dsa_port *dp, const unsigned char *addr,
--			 u16 vid);
--int dsa_port_lag_fdb_del(struct dsa_port *dp, const unsigned char *addr,
--			 u16 vid);
-+int dsa_port_bridge_host_fdb_add(struct dsa_port *dp,
-+				 const struct dsa_bridge *bridge,
-+				 const unsigned char *addr, u16 vid);
-+int dsa_port_bridge_host_fdb_del(struct dsa_port *dp,
-+				 const struct dsa_bridge *bridge,
-+				 const unsigned char *addr, u16 vid);
-+int dsa_port_lag_fdb_add(struct dsa_port *dp, const struct dsa_bridge *bridge,
-+			 const unsigned char *addr, u16 vid);
-+int dsa_port_lag_fdb_del(struct dsa_port *dp, const struct dsa_bridge *bridge,
-+			 const unsigned char *addr, u16 vid);
- int dsa_port_fdb_dump(struct dsa_port *dp, dsa_fdb_dump_cb_t *cb, void *data);
- int dsa_port_mdb_add(const struct dsa_port *dp,
- 		     const struct switchdev_obj_port_mdb *mdb);
-diff --git a/net/dsa/tag.h b/net/dsa/tag.h
-index cf52283fe9df..0e1be1da4537 100644
---- a/net/dsa/tag.h
-+++ b/net/dsa/tag.h
-@@ -201,7 +201,7 @@ dsa_find_designated_bridge_port_by_vid(struct net_device *conduit, u16 vid)
- 		if (dp->type != DSA_PORT_TYPE_USER)
- 			continue;
- 
--		if (!dp->bridge)
-+		if (!READ_ONCE(dp->bridge))
- 			continue;
- 
- 		if (dp->stp_state != BR_STATE_LEARNING &&
-@@ -238,7 +238,7 @@ static inline void dsa_default_offload_fwd_mark(struct sk_buff *skb)
- {
- 	struct dsa_port *dp = dsa_user_to_port(skb->dev);
- 
--	skb->offload_fwd_mark = !!(dp->bridge);
-+	skb->offload_fwd_mark = !!READ_ONCE(dp->bridge);
- }
- 
- /* Helper for removing DSA header tags from packets in the RX path.
-diff --git a/net/dsa/tag_8021q.c b/net/dsa/tag_8021q.c
-index f91646e60246..de7e24f75505 100644
---- a/net/dsa/tag_8021q.c
-+++ b/net/dsa/tag_8021q.c
-@@ -482,7 +482,7 @@ dsa_tag_8021q_find_port_by_vbid(struct net_device *conduit, int vbid)
- 		return NULL;
- 
- 	dsa_tree_for_each_user_port(dp, dst) {
--		if (!dp->bridge)
-+		if (!READ_ONCE(dp->bridge))
- 			continue;
- 
- 		if (dp->stp_state != BR_STATE_LEARNING &&
 diff --git a/net/dsa/user.c b/net/dsa/user.c
-index 041f9060c8ef..81f0d3901209 100644
+index 81f0d3901209..2073129b9f87 100644
 --- a/net/dsa/user.c
 +++ b/net/dsa/user.c
-@@ -3646,6 +3646,7 @@ static void dsa_user_switchdev_event_work(struct work_struct *work)
- 	const unsigned char *addr = switchdev_work->addr;
- 	struct net_device *dev = switchdev_work->dev;
- 	u16 vid = switchdev_work->vid;
-+	const struct dsa_bridge *bridge;
- 	struct dsa_switch *ds;
- 	struct dsa_port *dp;
- 	int err;
-@@ -3653,14 +3654,22 @@ static void dsa_user_switchdev_event_work(struct work_struct *work)
- 	dp = dsa_user_to_port(dev);
- 	ds = dp->ds;
- 
-+	/* Gone if the port left the bridge after the event was queued:
-+	 * dsa_port_bridge_destroy() clears it before it flushes the workqueue
-+	 */
-+	bridge = READ_ONCE(dp->bridge);
-+	if (!bridge)
-+		goto out;
-+
- 	switch (switchdev_work->event) {
- 	case SWITCHDEV_FDB_ADD_TO_DEVICE:
- 		if (switchdev_work->host_addr)
--			err = dsa_port_bridge_host_fdb_add(dp, addr, vid);
-+			err = dsa_port_bridge_host_fdb_add(dp, bridge, addr,
-+							   vid);
- 		else if (dp->lag)
--			err = dsa_port_lag_fdb_add(dp, addr, vid);
-+			err = dsa_port_lag_fdb_add(dp, bridge, addr, vid);
- 		else
--			err = dsa_port_fdb_add(dp, addr, vid);
-+			err = dsa_port_fdb_add(dp, bridge, addr, vid);
- 		if (err) {
- 			dev_err(ds->dev,
- 				"port %d failed to add %pM vid %d to fdb: %d\n",
-@@ -3672,11 +3681,12 @@ static void dsa_user_switchdev_event_work(struct work_struct *work)
- 
- 	case SWITCHDEV_FDB_DEL_TO_DEVICE:
- 		if (switchdev_work->host_addr)
--			err = dsa_port_bridge_host_fdb_del(dp, addr, vid);
-+			err = dsa_port_bridge_host_fdb_del(dp, bridge, addr,
-+							   vid);
- 		else if (dp->lag)
--			err = dsa_port_lag_fdb_del(dp, addr, vid);
-+			err = dsa_port_lag_fdb_del(dp, bridge, addr, vid);
- 		else
--			err = dsa_port_fdb_del(dp, addr, vid);
-+			err = dsa_port_fdb_del(dp, bridge, addr, vid);
- 		if (err) {
- 			dev_err(ds->dev,
- 				"port %d failed to delete %pM vid %d from fdb: %d\n",
-@@ -3686,6 +3696,7 @@ static void dsa_user_switchdev_event_work(struct work_struct *work)
- 		break;
+@@ -35,6 +35,7 @@
+ struct dsa_switchdev_event_work {
+ 	struct net_device *dev;
+ 	struct net_device *orig_dev;
++	netdevice_tracker orig_dev_tracker;
+ 	struct work_struct work;
+ 	unsigned long event;
+ 	/* Specific for SWITCHDEV_FDB_ADD_TO_DEVICE and
+@@ -3697,6 +3698,7 @@ static void dsa_user_switchdev_event_work(struct work_struct *work)
  	}
  
-+out:
+ out:
++	netdev_put(switchdev_work->orig_dev, &switchdev_work->orig_dev_tracker);
  	kfree(switchdev_work);
  }
  
-@@ -3718,7 +3729,7 @@ static int dsa_user_fdb_event(struct net_device *dev,
- 	if (ctx && ctx != dp)
- 		return 0;
+@@ -3775,6 +3777,10 @@ static int dsa_user_fdb_event(struct net_device *dev,
+ 	switchdev_work->event = event;
+ 	switchdev_work->dev = dev;
+ 	switchdev_work->orig_dev = orig_dev;
++	/* The work reports to orig_dev, which can be a foreign bridge port
++	 * that is unregistered before the work runs
++	 */
++	netdev_hold(orig_dev, &switchdev_work->orig_dev_tracker, GFP_ATOMIC);
  
--	if (!dp->bridge)
-+	if (!READ_ONCE(dp->bridge))
- 		return 0;
- 
- 	if (switchdev_fdb_is_dynamically_learned(fdb_info)) {
+ 	ether_addr_copy(switchdev_work->addr, fdb_info->addr);
+ 	switchdev_work->vid = fdb_info->vid;
 -- 
 2.53.0
 
