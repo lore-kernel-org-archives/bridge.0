@@ -1,88 +1,88 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795872908;
-	b=uLNvAwncEBPUw74G8NDlh7KuogNmzKyB+CeKPFgp1JbfPiktax3hb0h8WG2QNs7OQz3c
-	 aPnoail8Pv+srI96PC7yR736mcEM5Kpdp2Xog5BfkRe1lgweb/43LTLelhHZw2cnBCa/s
-	 RchQDzPmvaHigultQcJ+DdUoz1C2d4B3SN00UoOzkxhiHDHLqnAf0oXKos5rG/PB+0c+H
-	 drWwC5ZIbqQoozKzMUxBmWViKMb+ETIMcAvjp0Kxb/B3wc6shuwhvjV2Mzh6P2UTBe93b
-	 LWg9zwFGiKwTpn5Jjtj2QgnPbYpGYY/qPRYp254b0vqn8fY1lEmd0udFKYLoK45r31g==
+	t=1795872909;
+	b=ZBH8JGiqwLVen8J7+m1a1zUzAzkOI4uNz/kvnXNnNj1Pd/Ip/rd5cXoIp+qQq5lfS+6I
+	 hWD5o+mrvnQbINGpFO6cHqQolVC0GLo/TUuv233d+frNHkWK8WiM+0sLeha+1F49E6tC0
+	 JisoEtjk2E5bQEOylBYS4q1EqM5jX1tHR2KxqpAksN7P8IgQIzfZD4JUl7Pb14NloT00s
+	 9soBBo5rsrX/3bg0oiZQtguz26+kltvRylZoOhKI5FtbQ/cZs7/QyfNesIg3QNo5Wddr5
+	 4zW1X6uUpCs8WXV/2cp4sQ9OQiKTDXj28bI+4zpKDX0X99SWEUUNyCLmrz5/NyWX5sg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795872908;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795872909;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=1nx0IzBlV3p41W0idmpXgDKraGpG2B/QDdKxYpSRZy4=;
-	b=dttGN5BRRMeRevCKexX1T/sNI8/BmgYyXsp7Ex8GuJsl/t0RRxlIyKn70eGEQ7xhEm5g
-	 z/q9nD4lyHA7ltLHQlpaagZRiucURR/x5hYflIGJZ/2CnD5WDtWL123bht232RpBUdKKK
-	 04CR16LlSEEv6YWilf1rBJJ1YtqS2qbYl5sVlfbaPD+Gc03EdQ1dhRHsnTKO6w9Ui/btg
-	 w0yDw/TerQZpdxaLi0JUpTgq3cjWMuBRb4DgwmLvX0tR2c+Elee7eoLVCJgT9DW5oHlx+
-	 qmcOD4zm6JE+9BCo1DmZxyvi+TnPbKQWvyuOCWYgWW8ugREGobqdfB+95HBV33lBPZQ==
+	bh=4FtfN8L9+6gP5bWFBYQKEK99xwzUrxvf5q+hYLwXrRc=;
+	b=r2RzniS4hEziPeBwRGHxsKTJcoBrK5HgBIRbTkUDA4Ww9mc/ccjqY48FeG6FJOLRaxKe
+	 FIUxRVb6yok7fVccdl7r6D6Hg2tZYUmGvSqbmDJcDa7I6SMn1o/ttRDe2m3ZXlIkt3RcL
+	 IQGHVcdSfkUda1m4iLLpamKXk3x6kWP3bdQOHoeweHZRS5esbhouAJq+5atSKaaTHKsjK
+	 7Zgu/ZnHX/KcfH/YRi1lHDPjRG2/qH/BNQ/dMgapP0aiA4DEdEdKFs2yf94o3T9yjt49/
+	 MAIY30P22LDHM458G97uQHU0qYYHHEF8gOz2gbKr54I7J0+Nv8inq/Q6ybrkYs3wWXQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bairaktaris.de;
 	spf=pass smtp.mailfrom=bairaktaris.de;
-	dkim=pass header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=pT5qBdAF;
+	dkim=pass header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=F7+Ul0Zd;
 	arc=none smtp.remote-ip=209.85.208.48
 Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0177606A323
-	for <bridge@lists.linux.dev>; Sat, 28 Nov 2026 13:35:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B0177606A323
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E1A4606A32C
+	for <bridge@lists.linux.dev>; Sat, 28 Nov 2026 13:35:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5E1A4606A32C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bairaktaris.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=pT5qBdAF
-Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-6ae305e3bd9so3908275a12.0
-        for <bridge@lists.linux.dev>; Sat, 28 Nov 2026 05:35:07 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=F7+Ul0Zd
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-6b894d9a075so9912290a12.2
+        for <bridge@lists.linux.dev>; Sat, 28 Nov 2026 05:35:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bairaktaris.de; s=google; t=1795872906; x=1796477706; darn=lists.linux.dev;
+        d=bairaktaris.de; s=google; t=1795872907; x=1796477707; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=1nx0IzBlV3p41W0idmpXgDKraGpG2B/QDdKxYpSRZy4=;
-        b=pT5qBdAFpMf+9jPjL7LNaXezgrQU3CJ9RMD1ZeDBung1w9/3n0ObqulWtkL6uWplFC
-         I/o0V1FMdUnwHHFyjlp8iK0UdtOVNh12shUkv4SSuitYv3k7RenS1fTLyfFD0i+IkdNG
-         WAazwB7FyAEpA1/MXF/rXsrCHIxZSqgj6uucbGmCDtcQz4ro/x2MKoltbAXm8eWgkvi/
-         Ogik4kPD4zuYJGzak+yk13YFKAsXNLxBCBfwKGAQjkUPJclz6wqFr7imR8RaruRqBFFh
-         uh/zc+qcyCWIq5Fl4i4Fpjq5e/N8+M1iBYxi9cdaEiekjXeap36xhKtlYCsa7X5E3RuD
-         vYiA==
+        bh=4FtfN8L9+6gP5bWFBYQKEK99xwzUrxvf5q+hYLwXrRc=;
+        b=F7+Ul0Zdge0f4sHqy5yNcSIWkWlwZGZ9cuutprhLSkeGXH6dMsVAPL5La+TkX0sv46
+         PNFWN0ckRoAHHC2V+AMZdV1h23+Vg6iq4gjohIvGIMp0cxEFH5E00YxRhQCm4HhlrFab
+         diA3VlO9SVSAxDJI0hACY/Y+K2y/Tqg/6S786mWpNhtMxDKbF2GeSkS4up/y0uQjLZq6
+         mUFK81zeULcb21Rn5u+mVJ75RU1Z8CjpQXtKNhrG0lu9aU2wYalyPRPW/RqmGyXcNIfk
+         59Ql1Mx6YNZVhXHO+75D7qdPrTfKt46h94iLeSc+RDoOr7eM7CyP99gjr5in2H4nJrWn
+         Bsdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795872906; x=1796477706;
+        d=1e100.net; s=20260707; t=1795872907; x=1796477707;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=1nx0IzBlV3p41W0idmpXgDKraGpG2B/QDdKxYpSRZy4=;
-        b=lXHZFLHF8lCjOYCxGxRD6l18GJFllfcJXoma8rxovZauyMkJwyjXOQ+YuuoyAQjNEa
-         bbo8TCOXmCAZE3pv/LbNz+IIwmZY2ephNEY0s1qRMxJC0yXBAxLwX6J2MdZvYpiTLzX1
-         05qIVsnbuFXpjFMrhBCql6hHsKdIJ7iva1pgON5Ee6I+e8k9sVWtTE4xDieaqACRuKf2
-         S3DBzAi9FDvByX/BvyUdM1edGx1o/kfpC8XdlfAL1srwYns5TwyVhzUWP2N/MwPp+8A/
-         ZAbRuXf91eqTc7rf+SeDql9F5gB35b0oA3vg+UqV5aS2L0w1fM2eb0sy0bDPEagUBlA7
-         9Law==
-X-Forwarded-Encrypted: i=1; AL+hErGtWlE7EBNukMFoZkWXx2hNLpfhamZWoZ2B4AyfwJN0G+Nbb8OLY5M6neR8lGq99V8ad1xCJNU=@lists.linux.dev
-X-Gm-Message-State: APuU4Z8gBXSB0q2O2OWbZPPB6vN21XzFUdS5BLcGqovTDrtnSKgYeMfM
-	hfdlf/hEXnag9oF57lWdO+v2s5xomzmxhZ4HjW82xCKaOAPR0JLpaJ8CBmG8Ly3Y79L+bYiA/JU
-	/UlC34w==
-X-Gm-Gg: AZFdTZed1lWyt6FZXYgh5MzU0C2WOaoiz245yfDZS1bCNF5WA52J5jEGCqKSBML8Dtm
-	plDRPtxtSZ9yrbMT5Xw1yzFPsO3tZ+qlbrTqA3LGqaQBpE1VWvsa2yezE0hOt2mIwSKrY+fOUxF
-	LHAs9WdOF19o4T6kNniOWKNqv+eg4ToMisKytBgrwHr50HBbBQ5mqt7Gzo2NGzh1MgzT5sO0Yir
-	UlMod3bgnx/SRyEK0oqWiK0hPwSgelOjjzViB2gYpD7FV+dzRDcMDnb3bmzZRxREEPlTy3IN01o
-	a/D5AjMKmfbLu81ZQwvrPaRUuMSZEjNlQBufCw9vqC/wFcpMm6LsZ8jsC+2QEPgKELbfoloC2fu
-	/42STqkeATi+N1/JwarAN1Qca/MnG3sit3cYdOw3uTOulfK52mxJu+jJhH5eA/f9jivP+FiFCSm
-	XctIwAoTRr0Ux9xMZhlepvPjNMQ5RJPsL9DvzEczoh3vWnyzc38jv4jhPBHKOazhaR9iEBo3wMU
-	jLGNFFzYTVjCCx4EX6u4mOD/15MHcnJIgi84Ruag7Kcmr6U0Sems0ubG/kJ2mtej/+A/nHfgkLa
-	vZUdb3L7N7GUaiQ/MHqdewimLbindoJ3u9J93LqyWgvEgZytOZX0dJz20E4k7C5Nsi8WGjcWtwq
-	R7tMyCsHg2XYPP8CY4XIipMeft3TANxuAn0dB7IjUDMRcEgvfpEpxFlxPP06DSWkRl24lmgkBJu
-	y06uk6ap66ZOrPPeB8ixR+OVhC5GxZq8CoHsRJ8zyGvxFXiXKkFCY0ybWILH9BwchZPq/6IuERa
-	IQ3jUEZcyePZ1WQQ3IJUVCZ1wUWlV+5J3G4gSm90Ne2MiOtd4h3VGx/vlo84ZSTw59qMy1W9Wbo
-	vmz6YhgQtwRbeTIaExstKdakDRjbIBS0eCOSi+73V7kwenLcW2Derg==
-X-Received: by 2002:aa7:d353:0:b0:6ba:22f7:189e with SMTP id 4fb4d7f45d1cf-6ba37d63cdbmr13811986a12.7.1795872905760;
-        Sat, 28 Nov 2026 05:35:05 -0800 (PST)
+        bh=4FtfN8L9+6gP5bWFBYQKEK99xwzUrxvf5q+hYLwXrRc=;
+        b=CWwCpVSlFKzq8+Z2wWgjfRjBqQSrWfTdY2NYdRRmpdmH2ENXqw8KvnP6mq5hBOfgCG
+         I5SeN5T0w9Em1kp+KoLQE1mD3dGfkmHRingyi4nB6I2pBPtXImeOAo08G9HCaBkzi4yL
+         9W6/luPOFM7PRbRQ/eU+P5Dc1GPMLmf4GFqq42ZgqE25xobDYenyTJ1uwBfONYf9RjlX
+         cYs/v6Xyh3hgwNl2Ie1iSF7Imw4ZxIrsVhiPasD6eeIQw67mU4JQVETIERFZVp+8xnDC
+         LWVVmb+ESbuTgZ6pgFNs9hjzjqXNI2go6eMYdhJDkNF+7Uzo/pqdF4AWIjuS8vH0AXTt
+         7fDg==
+X-Forwarded-Encrypted: i=1; AL+hErHBMdFVsZEOSGmcrQS+gegOn2SPpa13MbAgNA+9VtY3PjLqKVthvo8OhdGOmCOK5Vxw67577XM=@lists.linux.dev
+X-Gm-Message-State: APuU4Z++hhCo7N6hA4aZo4S8wiDudk2iUVejEdyo6BkOarExwqSJ0tl6
+	/bmnDUdsQ7/5ee6X5zDKTufopNX2D25XabA/2EN+uVM01IYkLTxe3vntU73/hAZEOA==
+X-Gm-Gg: AZFdTZcMRqSfKLLg94NJFtLdXf2p+7/K4tCE3vbXA9klSyBblSF34sdJnwaL4elQKTp
+	IuIq/P22JBdexwJi6OYOG92IjplvFWGa/zEpo1lfmwh1sG1hdOD3yyBDzOAPbnJfwp8ytvbxnt1
+	KVJwcgoS8WsWiNnoIZZ877BJgklWx46jjBg3UgBvsOX/hjgvFSZwujbNzD/kvbDRvvHND/Ls0Qm
+	Fabj8p2J2IE9lNkHOyiKwKUJ2TVB8B9pgnxEY9XnwFyR/W1dIqc64y8Inrv1QG/sUIdYore5Kuy
+	ZIa842AwkuNR69nTN8A0UshQjdi7WUsCrlqibUwOykTHvhp6XWBOknzJJmhDgjxrd5x6Oh81Gbd
+	wtaxJPLYJPnFOfZgikEQxXIcQwfGrcR2aDMlg/5xScWsz9HTr1/XrP09V1j+Btn4Jfjkzisjj9x
+	2hXqUTWCN8dds1uYiMMyPODDZ3lTb8pHqd6M9Xq1PgyHi+2oIu18hX/5LrKEJfQeqb4h5GeecU6
+	uGIx3HqfpiipuQKfJsjYkxaBODj7MO7eViBvHEsJu7uA6jxaqEZnBEPAm3VPnnbwLaLlZuXxzjO
+	7FZB4UG2D/ssKsVxKufWj0EK8Di3bPs9dyIIQpfhqQOk+Hs6Iv2LnZn867QjlPMK5EQgbz2TBGt
+	i8Vf6weOjoOxP920d5/a8aWBCsXm+hnn/ZthPiI6kEsOGvsRAOHwqF51LyNkgvLkH6FvySdGlFM
+	VjuhK0ZRgbCAFAyr5lOJeEORu98A2G5uktdsy9M60qIUx/JAOYAJ48dNf6QYfsQGC4+jEDTEiAl
+	NMnoEKLxvFVHnz9iErdusLILJI9o1Bd+SAJ7qctxwzHk/Y265y2iud0Imlqb7JeKUh2VJtESS/d
+	hQgHnrD9qUzOicZkDJ+26tott/wTuwq5ajgwpNGCy0YJ0uTcl/Ri3QpJsMBM/ZWodVFNx2g6Fdc
+	=
+X-Received: by 2002:a05:6402:2422:b0:6bb:579a:c53f with SMTP id 4fb4d7f45d1cf-6bb579ac84emr5194763a12.18.1795872906656;
+        Sat, 28 Nov 2026 05:35:06 -0800 (PST)
 Received: from Desktop.tail070c67.ts.net (p200300f247080f000000000000000a27.dip0.t-ipconnect.de. [2003:f2:4708:f00::a27])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6bb1d49d992sm5282111a12.26.2026.11.28.05.35.04
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6bb1d49d992sm5282111a12.26.2026.11.28.05.35.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Nov 2026 05:35:05 -0800 (PST)
+        Sat, 28 Nov 2026 05:35:06 -0800 (PST)
 From: Julius Bairaktaris <julius@bairaktaris.de>
 To: Andrew Lunn <andrew@lunn.ch>,
 	Vladimir Oltean <olteanv@gmail.com>
@@ -101,9 +101,9 @@ Cc: netdev@vger.kernel.org,
 	Tobias Waldekranz <tobias@waldekranz.com>,
 	Linus Walleij <linusw@kernel.org>,
 	Pawel Dembicki <paweldembicki@gmail.com>
-Subject: [PATCH net v2 2/3] net: dsa: hold the device a queued FDB event is reported to
-Date: Sat, 28 Nov 2026 14:35:02 +0100
-Message-ID: <20261128133503.3887987-3-julius@bairaktaris.de>
+Subject: [PATCH net v2 3/3] net: dsa: forward a marked frame only while its port is in a bridge
+Date: Sat, 28 Nov 2026 14:35:03 +0100
+Message-ID: <20261128133503.3887987-4-julius@bairaktaris.de>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261128133503.3887987-1-julius@bairaktaris.de>
 References: <20261128133503.3887987-1-julius@bairaktaris.de>
@@ -118,91 +118,226 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-dsa_user_fdb_event() queues an FDB event on the DSA workqueue together
-with the device the event was emitted for (orig_dev), and
-dsa_user_switchdev_event_work() reports an added entry to that device
-with SWITCHDEV_FDB_OFFLOADED once the switch is programmed. No
-reference is held on orig_dev. It is a DSA user port only when the
-entry is on one: for an entry on another port of the bridge, which DSA
-installs as a host address, it is that port. DSA flushes its workqueue
-before one of its own ports leaves the bridge, but nothing waits for
-the queue when a foreign bridge port is unregistered, and a work that
-runs after the device was freed reads it in br_switchdev_event():
+The tag_dsa, tag_sja1105 and tag_vsc73xx_8021q taggers build a tag that
+has the switch forward a frame in the domain of the port's bridge when
+skb->offload_fwd_mark is set, which the bridge does for a port with TX
+forwarding offload. They read the bridge number and device with
+dsa_port_bridge_num_get() and dsa_port_bridge_dev_get() and assume that
+the port is in a bridge.
 
-  BUG: KASAN: slab-use-after-free in br_switchdev_event+0x41b/0x550
-  Read of size 8 at addr ffff888004d00000 by task kworker/u16:0/13
-  Workqueue: dsa_ordered dsa_user_switchdev_event_work
+It need not be. A frame the bridge marked can still be in a qdisc of the
+port when the port leaves the bridge, and a frame received on a bridged
+port still carries the mark its tagger set on reception when tc
+redirects it to another port. With no bridge, sja1105_imprecise_xmit()
+and vsc73xx_xmit() pass NULL to br_vlan_enabled(), which with
+CONFIG_BRIDGE_VLAN_FILTERING reads the bridge's private area:
+
+  BUG: KASAN: null-ptr-deref in br_vlan_enabled+0x21/0x60
+  Read of size 8 at addr 0000000000000e48 by task vinject/142
   Call Trace:
-   br_switchdev_event+0x41b/0x550
-   notifier_call_chain+0x9a/0x2a0
-   atomic_notifier_call_chain+0x5a/0x110
-   dsa_user_switchdev_event_work+0x32c/0x4c0
-   process_one_work+0x8e1/0x1640
-  Freed by task 139:
-   kfree+0x1b7/0x550
-   device_release+0xca/0x250
+   br_vlan_enabled+0x21/0x60
+   vsc73xx_xmit+0x130/0x1c0
+   dsa_user_xmit+0x265/0x4c0
+   dev_hard_start_xmit+0xde/0x5b0
+   __dev_queue_xmit+0x15f3/0x34f0
+   tcf_mirred_to_dev+0x9cc/0x15a0
 
-Hold a reference on orig_dev while the event is queued, as mlxsw,
-prestera, sparx5 and cpsw do for the device of their deferred FDB
-events. Unregistering the device then waits for the work, which does
-not take RTNL.
+and dsa_xmit_ll() sends a FORWARD tag for bridge number 0, which names
+the last physical switch instead of a virtual bridge device. Each
+helper also reads dp->bridge on its own, so a port that leaves between
+the two reads gives a bridge number without a bridge device.
 
-DSA held the device until commit 425d19cedef8 ("net: dsa: stop calling
-dev_hold in dsa_slave_fdb_event"), when the report still went to the
-DSA user port.
+Read dp->bridge once in each of the three taggers, and forward on
+behalf of the bridge only when the frame is marked and the port is in a
+bridge. Otherwise the frame takes the tagger's path for a port in no
+bridge, which sends it to the port the stack chose. The bridge stays
+valid while the tagger uses it: dsa_port_bridge_destroy() waits with
+synchronize_net() before it frees it.
 
-Found by an LLM review (Claude) of a DSA FDB change of mine. In QEMU
-with KASAN, with dsa_loop given FDB operations, assisted learning on
-the CPU port and a 500 ms delay in its FDB add (test-only changes),
-deleting a veth bridge port right after an address was learned on it
-gives the report above in 3 of 3 boots, and nothing with this change
-in 3 of 3 boots.
+A marked frame that is still queued when its port joins another bridge
+is forwarded in the domain of that bridge. That needs the queued frames
+dropped when the port's TX forwarding offload ends, which this change
+does not do.
 
-Fixes: 93c798230af5 ("net: dsa: call SWITCHDEV_FDB_OFFLOADED for the orig_dev")
+Found by the hosted Sashiko review of v1 of "net: dsa: do not run
+queued FDB events after the port left the bridge" [1], and the tc
+redirect by an LLM review (Claude) of this change.
+
+In QEMU with KASAN, with dsa_loop given the vsc73xx-8021q or the dsa
+tagger and TX forwarding offload (test-only changes): 40 broadcasts from
+the bridge held in a tbf qdisc on two user ports that then leave the
+bridge oops as above with vsc73xx-8021q in 3 of 3 boots, and with dsa
+go out as FORWARD tags for bridge 0 (28, 26 and 28 frames) in 3 of 3
+boots; frames received on a bridged port and redirected by tc to a port
+in no bridge oops as above in 3 of 3 boots. With this change, neither
+oopses in 5 of 5 boots each, the frames go out with the VLAN of their
+port in no bridge (vsc73xx-8021q, counted in one boot of each), and
+with dsa the frames sent after the leave carry FROM_CPU tags (29, 28
+and 29 frames) in 3 of 3 boots.
+
+Fixes: d82f8ab0d874 ("net: dsa: tag_dsa: offload the bridge forwarding process")
+Fixes: b6ad86e6ad6c ("net: dsa: sja1105: add bridge TX data plane offload based on tag_8021q")
+Fixes: 6c87e1a47928 ("net: dsa: vsc73xx: introduce tag 8021q for vsc73xx")
+Link: https://lore.kernel.org/all/20261121185821.1471559-1-julius@bairaktaris.de/ [1]
 Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
 ---
-v2:
-- Rebased on patch 1, which changes the same exit of
-  dsa_user_switchdev_event_work(): its out: label is above the
-  netdev_put() added here, so an event it drops still releases the
-  device. NIPA could not apply v1 after patch 1.
-- The message says how the bug was found.
-v1: https://lore.kernel.org/all/20261122173347.791590-1-julius@bairaktaris.de/
+v2: new.
 
- net/dsa/user.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/dsa/tag_dsa.c           | 15 ++++++++++-----
+ net/dsa/tag_sja1105.c       | 23 ++++++++++++++---------
+ net/dsa/tag_vsc73xx_8021q.c | 14 ++++++++------
+ 3 files changed, 32 insertions(+), 20 deletions(-)
 
-diff --git a/net/dsa/user.c b/net/dsa/user.c
-index 81f0d3901209..2073129b9f87 100644
---- a/net/dsa/user.c
-+++ b/net/dsa/user.c
-@@ -35,6 +35,7 @@
- struct dsa_switchdev_event_work {
- 	struct net_device *dev;
- 	struct net_device *orig_dev;
-+	netdevice_tracker orig_dev_tracker;
- 	struct work_struct work;
- 	unsigned long event;
- 	/* Specific for SWITCHDEV_FDB_ADD_TO_DEVICE and
-@@ -3697,6 +3698,7 @@ static void dsa_user_switchdev_event_work(struct work_struct *work)
+diff --git a/net/dsa/tag_dsa.c b/net/dsa/tag_dsa.c
+index d5ffee35fbb5..ee3d94a6b608 100644
+--- a/net/dsa/tag_dsa.c
++++ b/net/dsa/tag_dsa.c
+@@ -130,13 +130,20 @@ static struct sk_buff *dsa_xmit_ll(struct sk_buff *skb, struct net_device *dev,
+ 				   u8 extra)
+ {
+ 	struct dsa_port *dp = dsa_user_to_port(dev);
++	const struct dsa_bridge *bridge;
+ 	struct net_device *br_dev;
+ 	u8 tag_dev, tag_port;
+ 	enum dsa_cmd cmd;
+ 	u8 *dsa_header;
+ 
+-	if (skb->offload_fwd_mark) {
+-		unsigned int bridge_num = dsa_port_bridge_num_get(dp);
++	/* Forward on behalf of the bridge only while the port is in one: the
++	 * frame can have been marked before the port left it, or on reception
++	 * and kept by a redirect that bypassed the bridge
++	 */
++	bridge = READ_ONCE(dp->bridge);
++	br_dev = bridge ? bridge->dev : NULL;
++
++	if (skb->offload_fwd_mark && bridge) {
+ 		struct dsa_switch_tree *dst = dp->ds->dst;
+ 
+ 		cmd = DSA_CMD_FORWARD;
+@@ -145,7 +152,7 @@ static struct sk_buff *dsa_xmit_ll(struct sk_buff *skb, struct net_device *dev,
+ 		 * packets on behalf of a virtual switch device with an index
+ 		 * past the physical switches.
+ 		 */
+-		tag_dev = dst->last_switch + bridge_num;
++		tag_dev = dst->last_switch + bridge->num;
+ 		tag_port = 0;
+ 	} else {
+ 		cmd = DSA_CMD_FROM_CPU;
+@@ -153,8 +160,6 @@ static struct sk_buff *dsa_xmit_ll(struct sk_buff *skb, struct net_device *dev,
+ 		tag_port = dp->index;
  	}
  
- out:
-+	netdev_put(switchdev_work->orig_dev, &switchdev_work->orig_dev_tracker);
- 	kfree(switchdev_work);
+-	br_dev = dsa_port_bridge_dev_get(dp);
+-
+ 	/* If frame is already 802.1Q tagged, we can convert it to a DSA
+ 	 * tag (avoiding a memmove), but only if the port is standalone
+ 	 * (in which case we always send FROM_CPU) or if the port's
+diff --git a/net/dsa/tag_sja1105.c b/net/dsa/tag_sja1105.c
+index bfe1f746f55b..f149852c5d83 100644
+--- a/net/dsa/tag_sja1105.c
++++ b/net/dsa/tag_sja1105.c
+@@ -209,11 +209,10 @@ static u16 sja1105_xmit_tpid(struct dsa_port *dp)
  }
  
-@@ -3775,6 +3777,10 @@ static int dsa_user_fdb_event(struct net_device *dev,
- 	switchdev_work->event = event;
- 	switchdev_work->dev = dev;
- 	switchdev_work->orig_dev = orig_dev;
-+	/* The work reports to orig_dev, which can be a foreign bridge port
-+	 * that is unregistered before the work runs
-+	 */
-+	netdev_hold(orig_dev, &switchdev_work->orig_dev_tracker, GFP_ATOMIC);
+ static struct sk_buff *sja1105_imprecise_xmit(struct sk_buff *skb,
+-					      struct net_device *netdev)
++					      struct net_device *netdev,
++					      const struct dsa_bridge *bridge)
+ {
+ 	struct dsa_port *dp = dsa_user_to_port(netdev);
+-	unsigned int bridge_num = dsa_port_bridge_num_get(dp);
+-	struct net_device *br = dsa_port_bridge_dev_get(dp);
+ 	u16 tx_vid;
  
- 	ether_addr_copy(switchdev_work->addr, fdb_info->addr);
- 	switchdev_work->vid = fdb_info->vid;
+ 	/* If the port is under a VLAN-aware bridge, just slide the
+@@ -222,14 +221,14 @@ static struct sk_buff *sja1105_imprecise_xmit(struct sk_buff *skb,
+ 	 * across the entire dst, and its VLANs cannot be shared with
+ 	 * any standalone port.
+ 	 */
+-	if (br_vlan_enabled(br))
++	if (br_vlan_enabled(bridge->dev))
+ 		return skb;
+ 
+ 	/* If the port is under a VLAN-unaware bridge, use an imprecise
+ 	 * TX VLAN that targets the bridge's entire broadcast domain,
+ 	 * instead of just the specific port.
+ 	 */
+-	tx_vid = dsa_tag_8021q_bridge_vid(bridge_num);
++	tx_vid = dsa_tag_8021q_bridge_vid(bridge->num);
+ 
+ 	return dsa_8021q_xmit(skb, netdev, sja1105_xmit_tpid(dp), tx_vid);
+ }
+@@ -268,12 +267,17 @@ static struct sk_buff *sja1105_xmit(struct sk_buff *skb,
+ 				    struct net_device *netdev)
+ {
+ 	struct dsa_port *dp = dsa_user_to_port(netdev);
++	const struct dsa_bridge *bridge = READ_ONCE(dp->bridge);
+ 	u16 queue_mapping = skb_get_queue_mapping(skb);
+ 	u8 pcp = netdev_txq_to_tc(netdev, queue_mapping);
+ 	u16 tx_vid = dsa_tag_8021q_standalone_vid(dp);
+ 
+-	if (skb->offload_fwd_mark)
+-		return sja1105_imprecise_xmit(skb, netdev);
++	/* Forward on behalf of the bridge only while the port is in one: the
++	 * frame can have been marked before the port left it, or on reception
++	 * and kept by a redirect that bypassed the bridge
++	 */
++	if (skb->offload_fwd_mark && bridge)
++		return sja1105_imprecise_xmit(skb, netdev, bridge);
+ 
+ 	/* Transmitting management traffic does not rely upon switch tagging,
+ 	 * but instead SPI-installed management routes. Part 2 of this
+@@ -296,6 +300,7 @@ static struct sk_buff *sja1110_xmit(struct sk_buff *skb,
+ {
+ 	struct sk_buff *clone = SJA1105_SKB_CB(skb)->clone;
+ 	struct dsa_port *dp = dsa_user_to_port(netdev);
++	const struct dsa_bridge *bridge = READ_ONCE(dp->bridge);
+ 	u16 queue_mapping = skb_get_queue_mapping(skb);
+ 	u8 pcp = netdev_txq_to_tc(netdev, queue_mapping);
+ 	u16 tx_vid = dsa_tag_8021q_standalone_vid(dp);
+@@ -303,8 +308,8 @@ static struct sk_buff *sja1110_xmit(struct sk_buff *skb,
+ 	__be16 *tx_header;
+ 	int trailer_pos;
+ 
+-	if (skb->offload_fwd_mark)
+-		return sja1105_imprecise_xmit(skb, netdev);
++	if (skb->offload_fwd_mark && bridge)
++		return sja1105_imprecise_xmit(skb, netdev, bridge);
+ 
+ 	/* Transmitting control packets is done using in-band control
+ 	 * extensions, while data packets are transmitted using
+diff --git a/net/dsa/tag_vsc73xx_8021q.c b/net/dsa/tag_vsc73xx_8021q.c
+index f4736a1a7a0f..575dd2f99aeb 100644
+--- a/net/dsa/tag_vsc73xx_8021q.c
++++ b/net/dsa/tag_vsc73xx_8021q.c
+@@ -12,18 +12,20 @@ static struct sk_buff *
+ vsc73xx_xmit(struct sk_buff *skb, struct net_device *netdev)
+ {
+ 	struct dsa_port *dp = dsa_user_to_port(netdev);
++	const struct dsa_bridge *bridge = READ_ONCE(dp->bridge);
+ 	u16 queue_mapping = skb_get_queue_mapping(skb);
+ 	u16 tx_vid = dsa_tag_8021q_standalone_vid(dp);
+ 	u8 pcp;
+ 
+-	if (skb->offload_fwd_mark) {
+-		unsigned int bridge_num = dsa_port_bridge_num_get(dp);
+-		struct net_device *br = dsa_port_bridge_dev_get(dp);
+-
+-		if (br_vlan_enabled(br))
++	/* Forward on behalf of the bridge only while the port is in one: the
++	 * frame can have been marked before the port left it, or on reception
++	 * and kept by a redirect that bypassed the bridge
++	 */
++	if (skb->offload_fwd_mark && bridge) {
++		if (br_vlan_enabled(bridge->dev))
+ 			return skb;
+ 
+-		tx_vid = dsa_tag_8021q_bridge_vid(bridge_num);
++		tx_vid = dsa_tag_8021q_bridge_vid(bridge->num);
+ 	}
+ 
+ 	pcp = netdev_txq_to_tc(netdev, queue_mapping);
 -- 
 2.53.0
 
